@@ -775,7 +775,7 @@ const QUESTIONS = [
   ]},
 
   // ====== DIM: POSICIONAMIENTO COMPETITIVO ======
-  {dim:'Posicionamiento competitivo', dimKey:'vision', type:'multi', max:3, q:'¿Quiénes son tus 3 principales referentes/competidores percibidos en Colombia o LATAM? (hasta 3)', opts:[
+  {dim:'Posicionamiento competitivo', dimKey:'vision', type:'multi', max:3, customInputs:3, customPlaceholder:'Otro referente que tengas en mente...', q:'¿Quiénes son tus 3 principales referentes/competidores percibidos en Colombia o LATAM? (hasta 3 de la lista + puedes agregar hasta 3 nombres propios abajo)', opts:[
     {ic:'💼', t:'Juan Diego Gómez (Invertir Mejor)', s:{maestro:2, mediatico:2}},
     {ic:'📚', t:'Andrés Gutiérrez (Andres Gutierrez Show)', s:{maestro:2, mediatico:1}},
     {ic:'🎓', t:'Sofía Macías (Pequeño Cerdo Capitalista)', s:{autor:3, maestro:1}},
@@ -954,6 +954,17 @@ function renderQuestion(){
       html += '<button class="opt '+(isSel?'selected':'')+'" data-idx="'+idx+'" type="button"><span class="opt-check"></span><span class="opt-ic">'+o.ic+'</span><span class="opt-txt">'+o.t+'</span></button>';
     });
     html += '</div>';
+    // Custom inputs (si la pregunta los tiene)
+    if(q.customInputs){
+      const customs = (state.answers[i] && state.answers[i].customs) || [];
+      html += '<div style="margin-top:18px;padding:16px;background:rgba(123,47,255,.06);border:1px dashed rgba(123,47,255,.4);border-radius:12px">';
+      html += '<p style="color:var(--purple);font-size:.85rem;margin-bottom:10px;font-weight:600">✍️ ¿Tienes otros referentes en mente? Escríbelos aquí (hasta '+q.customInputs+'):</p>';
+      for(let n = 0; n < q.customInputs; n++){
+        const v = customs[n] || '';
+        html += '<input type="text" class="custom-input" data-cidx="'+n+'" placeholder="'+(q.customPlaceholder||'Escribe un nombre...')+'" value="'+v.replace(/"/g,'&quot;')+'" style="width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(123,47,255,.3);border-radius:10px;padding:10px 14px;color:#fff;margin-bottom:8px;font-family:inherit;font-size:.95rem;outline:none" />';
+      }
+      html += '</div>';
+    }
   } else if(q.type === 'text'){
     const v = (state.answers[i] && state.answers[i].text) || '';
     html += '<textarea id="q-text" placeholder="'+q.placeholder+'" style="min-height:140px;margin-top:14px">'+v+'</textarea>';
@@ -971,6 +982,15 @@ function renderQuestion(){
   } else if(q.type === 'multi'){
     document.querySelectorAll('#question-card .opt').forEach(el => {
       el.addEventListener('click', () => {
+        // Antes de re-render, preservar lo escrito en custom inputs
+        if(q.customInputs){
+          const customs = [];
+          document.querySelectorAll('#question-card .custom-input').forEach(inp => {
+            customs.push(inp.value.trim());
+          });
+          if(!state.answers[i]) state.answers[i] = { idxs: [], score: {}, type:'multi' };
+          state.answers[i].customs = customs.filter(Boolean);
+        }
         const idx = +el.dataset.idx;
         let cur = (state.answers[i] && state.answers[i].idxs) || [];
         if(cur.includes(idx)){
@@ -984,7 +1004,8 @@ function renderQuestion(){
           values.push(q.opts[ix].t);
           Object.keys(q.opts[ix].s||{}).forEach(k => agg[k] = (agg[k]||0) + q.opts[ix].s[k]);
         });
-        state.answers[i] = { idxs: cur, value: values.join(' | '), score: agg, type:'multi' };
+        const prev = state.answers[i] || {};
+        state.answers[i] = { idxs: cur, value: values.join(' | '), score: agg, type:'multi', customs: prev.customs || [] };
         renderQuestion();
       });
     });
@@ -997,9 +1018,30 @@ function nextQuestion(){
   if(q.type === 'text'){
     const txt = document.getElementById('q-text').value.trim();
     state.answers[i] = { text: txt, value: txt, score: {}, type:'text' };
+  } else if(q.type === 'multi'){
+    // Capturar inputs custom si existen
+    let customs = [];
+    if(q.customInputs){
+      document.querySelectorAll('#question-card .custom-input').forEach(inp => {
+        const v = inp.value.trim();
+        if(v) customs.push(v);
+      });
+    }
+    const hasOpts = state.answers[i] && state.answers[i].idxs && state.answers[i].idxs.length > 0;
+    const hasCustoms = customs.length > 0;
+    if(!hasOpts && !hasCustoms){
+      alert('Por favor selecciona al menos una opción o escribe al menos un nombre propio antes de continuar.');
+      return;
+    }
+    // Guardar customs y reconstruir value
+    if(!state.answers[i]) state.answers[i] = { idxs: [], score: {}, type:'multi' };
+    state.answers[i].customs = customs;
+    const values = (state.answers[i].idxs || []).map(ix => q.opts[ix].t);
+    if(customs.length) values.push(...customs.map(c => '✍️ ' + c));
+    state.answers[i].value = values.join(' | ');
   } else {
-    if(!state.answers[i] || (q.type==='multi' && (!state.answers[i].idxs || state.answers[i].idxs.length===0))){
-      alert('Por favor selecciona al menos una opción antes de continuar.');
+    if(!state.answers[i]){
+      alert('Por favor selecciona una opción antes de continuar.');
       return;
     }
   }
@@ -1439,50 +1481,4 @@ function renderDashboard(){
     const ctx = cnv.getContext('2d');
     let W,H,parts=[];
     const onResize=()=>{W=cnv.width=innerWidth;H=cnv.height=innerHeight};
-    onResize();addEventListener('resize',onResize);
-    const cols=['#00d4ff','#7b2fff','#ff8c00'];
-    const N=innerWidth<700?12:18;
-    for(let i=0;i<N;i++)parts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,r:Math.random()*1.5+.5,c:cols[i%3],a:Math.random()*.4+.2});
-    function tick(){
-      ctx.clearRect(0,0,W,H);
-      parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c;ctx.globalAlpha=p.a;ctx.shadowBlur=8;ctx.shadowColor=p.c;ctx.fill()});
-      ctx.globalAlpha=1;ctx.shadowBlur=0;requestAnimationFrame(tick);
-    }
-    tick();
-  } catch(e){}
-})();
-
-document.addEventListener('DOMContentLoaded', () => {
-  const view = getView();
-  showView(view);
-  if(view === 'form'){
-    document.getElementById('btn-context-next').addEventListener('click', gotoIntro);
-    document.getElementById('btn-start').addEventListener('click', startForm);
-    document.getElementById('btn-next').addEventListener('click', nextQuestion);
-    document.getElementById('btn-prev').addEventListener('click', prevQuestion);
-  }
-  if(view === 'admin'){
-    document.getElementById('adm-login-btn').addEventListener('click', adminLogin);
-    document.getElementById('adm-pass').addEventListener('keypress', e => { if(e.key === 'Enter') adminLogin(); });
-    document.getElementById('adm-refresh').addEventListener('click', loadResponses);
-    document.getElementById('adm-export').addEventListener('click', exportExcel);
-    document.getElementById('adm-dashboard').addEventListener('click', () => { window.location.search = '?dashboard'; });
-    document.getElementById('adm-close-detail').addEventListener('click', () => { document.getElementById('adm-detail-card').style.display = 'none'; });
-    document.getElementById('adm-delete-resp').addEventListener('click', deleteCurrentResp);
-  }
-  if(view === 'dashboard'){
-    loadDashboard();
-    document.getElementById('dash-refresh').addEventListener('click', loadDashboard);
-    document.querySelectorAll('.tab').forEach(t => {
-      t.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-        t.classList.add('active');
-        ['perfil','madurez','brechas','propuesta'].forEach(n => document.getElementById('tab-'+n).classList.add('hidden'));
-        document.getElementById('tab-' + t.dataset.tab).classList.remove('hidden');
-      });
-    });
-  }
-});
-</script>
-</body>
-</html>
+    onResize();addEventListener('res
