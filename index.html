@@ -303,11 +303,11 @@ h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
 
       <div class="field">
         <label>Tu nombre completo *</label>
-        <input type="text" id="f-name" placeholder="Escribe tu nombre completo" autocomplete="off" name="diagnostic-name-894027" />
+        <input type="text" id="f-name" placeholder="David Aponte Becerra" value="David Aponte Becerra" />
       </div>
       <div class="field">
         <label>Tu correo *</label>
-        <input type="email" id="f-email" placeholder="david@davidaponte.com" autocomplete="off" name="diagnostic-email-893473" />
+        <input type="text" id="f-email" placeholder="david@davidaponte.com" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="diag-mail" readonly onfocus="this.removeAttribute('readonly'); this.value='';" />
       </div>
 
       <button class="btn" id="btn-start">Comenzar las 33 preguntas →</button>
@@ -1495,6 +1495,10 @@ function renderDashboard(){
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Forzar campo email vacío (evitar autofill)
+  setTimeout(() => { const e = document.getElementById('f-email'); if(e) e.value = ''; }, 100);
+  setTimeout(() => { const e = document.getElementById('f-email'); if(e) e.value = ''; }, 500);
+  setTimeout(() => { const e = document.getElementById('f-email'); if(e) e.value = ''; }, 1500);
   const view = getView();
   showView(view);
   if(view === 'form'){
