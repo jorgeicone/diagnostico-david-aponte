@@ -918,5 +918,571 @@ function gotoIntro(){
 function startForm(){
   const name = document.getElementById('f-name').value.trim();
   const email = document.getElementById('f-email').value.trim();
-  if(!name || !email){
-    alert('Por favor completa tu nombre y c
+  if(!name || !email){ alert('Por favor completa tu nombre y correo.'); return; }
+  state.user = {name, email, started_at: new Date().toISOString()};
+  document.getElementById('screen-intro').classList.add('hidden');
+  document.getElementById('screen-questions').classList.remove('hidden');
+  state.current = 0;
+  renderQuestion();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderQuestion(){
+  const i = state.current;
+  const q = QUESTIONS[i];
+  const total = QUESTIONS.length;
+  document.getElementById('prog-bar').style.width = ((i+1)/total*100)+'%';
+  document.getElementById('prog-current').textContent = 'Pregunta ' + (i+1);
+  document.getElementById('prog-dim').textContent = q.dim;
+  document.getElementById('prog-total').textContent = 'de ' + total;
+  document.getElementById('btn-prev').disabled = (i===0);
+  document.getElementById('btn-next').textContent = (i===total-1) ? 'Ver análisis →' : 'Siguiente →';
+  let html = '<span class="dim-tag">'+q.dim+'</span><h2>'+q.q+'</h2>';
+  if(q.type === 'choice'){
+    html += '<div class="options" style="margin-top:18px">';
+    q.opts.forEach((o, idx) => {
+      const sel = (state.answers[i] && state.answers[i].idx === idx) ? 'selected' : '';
+      html += '<button class="opt '+sel+'" data-idx="'+idx+'" type="button"><span class="opt-ic">'+o.ic+'</span><span class="opt-txt">'+o.t+'</span></button>';
+    });
+    html += '</div>';
+  } else if(q.type === 'multi'){
+    const sel = (state.answers[i] && state.answers[i].idxs) || [];
+    html += '<div class="multi-info"><span class="ic">✨</span><div>Puedes elegir varias respuestas. <strong>Máximo '+q.max+' opciones.</strong> Marca las que más resuenen contigo.</div></div>';
+    html += '<div class="options" style="margin-top:14px">';
+    q.opts.forEach((o, idx) => {
+      const isSel = sel.includes(idx);
+      html += '<button class="opt '+(isSel?'selected':'')+'" data-idx="'+idx+'" type="button"><span class="opt-check"></span><span class="opt-ic">'+o.ic+'</span><span class="opt-txt">'+o.t+'</span></button>';
+    });
+    html += '</div>';
+  } else if(q.type === 'text'){
+    const v = (state.answers[i] && state.answers[i].text) || '';
+    html += '<textarea id="q-text" placeholder="'+q.placeholder+'" style="min-height:140px;margin-top:14px">'+v+'</textarea>';
+  }
+  document.getElementById('question-card').innerHTML = html;
+  if(q.type === 'choice'){
+    document.querySelectorAll('#question-card .opt').forEach(el => {
+      el.addEventListener('click', () => {
+        const idx = +el.dataset.idx;
+        state.answers[i] = { idx, value: q.opts[idx].t, score: q.opts[idx].s, type:'choice' };
+        document.querySelectorAll('#question-card .opt').forEach(x => x.classList.remove('selected'));
+        el.classList.add('selected');
+      });
+    });
+  } else if(q.type === 'multi'){
+    document.querySelectorAll('#question-card .opt').forEach(el => {
+      el.addEventListener('click', () => {
+        const idx = +el.dataset.idx;
+        let cur = (state.answers[i] && state.answers[i].idxs) || [];
+        if(cur.includes(idx)){
+          cur = cur.filter(x => x !== idx);
+        } else {
+          if(cur.length >= q.max){ alert('Máximo '+q.max+' opciones. Desmarca alguna primero.'); return; }
+          cur.push(idx);
+        }
+        const agg = {}; const values = [];
+        cur.forEach(ix => {
+          values.push(q.opts[ix].t);
+          Object.keys(q.opts[ix].s||{}).forEach(k => agg[k] = (agg[k]||0) + q.opts[ix].s[k]);
+        });
+        state.answers[i] = { idxs: cur, value: values.join(' | '), score: agg, type:'multi' };
+        renderQuestion();
+      });
+    });
+  }
+}
+
+function nextQuestion(){
+  const i = state.current;
+  const q = QUESTIONS[i];
+  if(q.type === 'text'){
+    const txt = document.getElementById('q-text').value.trim();
+    state.answers[i] = { text: txt, value: txt, score: {}, type:'text' };
+  } else {
+    if(!state.answers[i] || (q.type==='multi' && (!state.answers[i].idxs || state.answers[i].idxs.length===0))){
+      alert('Por favor selecciona al menos una opción antes de continuar.');
+      return;
+    }
+  }
+  if(i === QUESTIONS.length - 1) submitAnswers();
+  else { state.current++; renderQuestion(); window.scrollTo({top:0,behavior:'smooth'}); }
+}
+
+function prevQuestion(){
+  if(state.current > 0){ state.current--; renderQuestion(); window.scrollTo({top:0,behavior:'smooth'}); }
+}
+
+function computeArchetype(){
+  const scores = {};
+  Object.keys(ARCHETYPES).forEach(k => scores[k] = 0);
+  Object.values(state.answers).forEach(a => {
+    if(a && a.score){
+      Object.keys(a.score).forEach(k => scores[k] = (scores[k]||0) + a.score[k]);
+    }
+  });
+  const total = Object.values(scores).reduce((s,v) => s+v, 0) || 1;
+  const ordered = Object.entries(scores).sort((a,b) => b[1]-a[1]);
+  const pct = {};
+  Object.keys(scores).forEach(k => pct[k] = Math.round((scores[k]/total)*100));
+  return { winner: ordered[0][0], runnerup: ordered[1][0], scores, ordered, pct };
+}
+
+function computeMadurez(){
+  const dimScores = {};
+  Object.keys(DIMENSIONS).forEach(k => dimScores[k] = { points: 0, max: 0 });
+  QUESTIONS.forEach((q, i) => {
+    if(!q.dimKey) return;
+    const ans = state.answers[i];
+    const dim = dimScores[q.dimKey];
+    if(q.type === 'choice'){
+      dim.max += 10;
+      if(ans && ans.idx !== undefined) dim.points += 10;
+    } else if(q.type === 'multi'){
+      dim.max += 10;
+      if(ans && ans.idxs){
+        const ratio = ans.idxs.length / q.max;
+        if(ans.idxs.length === 0) dim.points += 0;
+        else if(ans.idxs.length === 1) dim.points += 9;
+        else if(ratio <= 0.5) dim.points += 10;
+        else if(ratio <= 0.75) dim.points += 7;
+        else dim.points += 5;
+      }
+    } else if(q.type === 'text'){
+      dim.max += 10;
+      if(ans && ans.text){
+        const len = ans.text.length;
+        if(len >= 200) dim.points += 10;
+        else if(len >= 100) dim.points += 7;
+        else if(len >= 30) dim.points += 5;
+        else dim.points += 2;
+      }
+    }
+  });
+  const result = {};
+  Object.keys(dimScores).forEach(k => {
+    const d = dimScores[k];
+    result[k] = d.max > 0 ? Math.round((d.points/d.max)*100) : 0;
+  });
+  return result;
+}
+
+function computeBrechasFortalezas(madurez){
+  const ordered = Object.entries(madurez).sort((a,b) => a[1]-b[1]);
+  const brechas = ordered.slice(0, 3).filter(([,v]) => v < 70).map(([k,v]) => ({
+    dim: DIMENSIONS[k], score: v, msg: brechaMessage(k)
+  }));
+  const fortalezas = ordered.slice(-3).reverse().filter(([,v]) => v >= 70).map(([k,v]) => ({
+    dim: DIMENSIONS[k], score: v, msg: fortalezaMessage(k)
+  }));
+  return { brechas, fortalezas };
+}
+
+function brechaMessage(dim){
+  const m = {
+    vision: 'Tu visión a 24 meses todavía está borrosa. Antes de invertir en marca o pauta, conviene cerrar el "para qué" — porque la inversión sin norte se evapora.',
+    modelo: 'Estás abierto a varios modelos a la vez. A 6 meses hay que elegir UNO como motor principal y los demás como secundarios.',
+    tiempo: 'El tiempo personal disponible es escaso para el nivel de ambición. Dos caminos: bajar la ambición o construir un equipo que ejecute por ti.',
+    audiencia: 'Tienes audiencias múltiples sin ranking. Hay que elegir 1 audiencia principal y 1 secundaria — el resto se ignora por ahora.',
+    cursos: 'Tu oferta de cursos está en transición. Esta es la primera decisión metodológica con Nathalia.',
+    metricas: 'Las métricas objetivo aún no están aterrizadas en números medibles. Sin esto no podemos definir si funciona en 6 meses.',
+    inversion: 'Quieres invertir en muchas cosas a la vez. Hay que priorizar 2-3 frentes y dejar el resto para después.',
+    acompañamiento: 'No está claro cómo te imaginas trabajando con un equipo externo. Esto se conversa antes de arrancar.'
+  };
+  return m[dim] || 'Esta dimensión necesita más definición.';
+}
+
+function fortalezaMessage(dim){
+  const m = {
+    vision: 'Tienes una visión clara y articulada de dónde quieres llegar.',
+    modelo: 'Sabes muy bien qué modelo de negocio quieres construir. Eso acelera todas las decisiones.',
+    tiempo: 'Tienes disponibilidad razonable de tiempo personal.',
+    audiencia: 'Tienes claridad sobre tu cliente ideal.',
+    cursos: 'Tu oferta de cursos está madura — sabes qué hacer con ella.',
+    metricas: 'Tienes metas concretas y medibles.',
+    inversion: 'Tienes priorización clara de inversión.',
+    acompañamiento: 'Tienes claro cómo quieres trabajar con un equipo externo.'
+  };
+  return m[dim] || 'Esta dimensión está bien definida.';
+}
+
+function computeActions(arquetipo, madurez){
+  const arc = arquetipo.winner;
+  const dimSorted = Object.entries(madurez).sort((a,b) => a[1]-b[1]);
+  const weakest = dimSorted.slice(0,3).map(([k]) => k);
+  const actionPool = {
+    vision: { d:'Sesión de visión a 24 meses con Jorge — aterrizar en una sola frase la dirección', i:'ALTO' },
+    modelo: { d:'Workshop con Nathalia + Jorge para elegir el modelo de monetización principal', i:'ALTO' },
+    tiempo: { d:'Diseño de modelo operativo: qué hace David, qué delega al equipo', i:'MEDIO' },
+    audiencia: { d:'Definición de buyer persona principal y secundaria con investigación', i:'ALTO' },
+    cursos: { d:'Arquitectura pedagógica del curso con Nathalia (método propio con nombre)', i:'ALTO' },
+    metricas: { d:'Tablero de KPIs mensuales con metas claras a 6 meses', i:'MEDIO' },
+    inversion: { d:'Priorización trimestral de inversión con matriz impacto/esfuerzo', i:'ALTO' },
+    acompañamiento: { d:'Setup operativo: cadencia de reuniones, herramientas y entregables', i:'MEDIO' }
+  };
+  const arcActions = {
+    maestro: [{d:'Setup profesional de Hotmart con embudo automatizado', i:'ALTO'},{d:'Producción de pauta paga para captar leads al curso', i:'ALTO'}],
+    estratega: [{d:'Rediseño de web con tono de fondo de inversión / autoridad', i:'ALTO'},{d:'Estrategia de LinkedIn pensamiento: 2-3 posts/mes', i:'ALTO'}],
+    comunidad: [{d:'Plataforma de comunidad: Slack/Discord/Circle + onboarding', i:'ALTO'},{d:'Diseño de rituales semanales (sesiones, retos)', i:'MEDIO'}],
+    autor: [{d:'Plan editorial para libro o serie de papers', i:'MEDIO'},{d:'Activación de prensa: 5 medios objetivo en 6 meses', i:'ALTO'}],
+    consultor: [{d:'Pipeline B2B: 20 empresas target con outreach personalizado', i:'ALTO'},{d:'Pitch deck corporativo + casos de éxito documentados', i:'ALTO'}],
+    mediatico: [{d:'Sistema de producción de Reels y Shorts (3-5/semana)', i:'ALTO'},{d:'Estrategia de bookings: conferencias + podcasts mensuales', i:'MEDIO'}],
+    mentor: [{d:'Construcción del programa de mentoría: estructura, precio, promesa', i:'ALTO'},{d:'Web tipo aplicación (no compra directa)', i:'MEDIO'}],
+    emprendedor: [{d:'MVP del producto digital propio (no Hotmart)', i:'ALTO'},{d:'Plan de bootstrapping o levantamiento de capital', i:'MEDIO'}]
+  };
+  const actions = [];
+  weakest.forEach(w => actions.push(actionPool[w]));
+  (arcActions[arc] || []).forEach(a => actions.push(a));
+  return actions.slice(0, 5);
+}
+
+async function submitAnswers(){
+  document.getElementById('screen-questions').classList.add('hidden');
+  document.getElementById('screen-saving').classList.remove('hidden');
+  const arquetipo = computeArchetype();
+  const madurez = computeMadurez();
+  const bf = computeBrechasFortalezas(madurez);
+  const actions = computeActions(arquetipo, madurez);
+  const payload = {
+    user: state.user, submitted_at: new Date().toISOString(),
+    answers: QUESTIONS.map((q, i) => ({
+      dim: q.dim, dimKey: q.dimKey, q: q.q, type: q.type,
+      value: state.answers[i] ? state.answers[i].value : null,
+      score: state.answers[i] ? state.answers[i].score : null
+    })),
+    arquetipo, madurez, brechas: bf.brechas, fortalezas: bf.fortalezas, actions
+  };
+  try { await saveToGitHub(payload); } catch(e){ console.error('Save error:', e); }
+  setTimeout(() => {
+    document.getElementById('screen-saving').classList.add('hidden');
+    showResult(payload);
+  }, 1500);
+}
+
+async function saveToGitHub(payload){
+  const url = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/issues';
+  const body = {
+    title: 'Diagnóstico — ' + payload.user.name + ' — ' + payload.arquetipo.winner,
+    body: '```json\n' + JSON.stringify(payload, null, 2) + '\n```',
+    labels: ['diagnostic']
+  };
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if(!r.ok) throw new Error('GitHub error: ' + r.status);
+  return r.json();
+}
+
+function showResult(payload){
+  document.getElementById('screen-result').classList.remove('hidden');
+  const arquetipo = payload.arquetipo, madurez = payload.madurez;
+  const brechas = payload.brechas, fortalezas = payload.fortalezas, actions = payload.actions;
+  const arc = ARCHETYPES[arquetipo.winner];
+  const arc2 = ARCHETYPES[arquetipo.runnerup];
+  document.getElementById('r-icon').textContent = arc.icon;
+  document.getElementById('r-name').textContent = arc.name;
+  document.getElementById('r-subtitle').textContent = arc.subtitle;
+  document.getElementById('r-d-ic').textContent = arc.icon;
+  document.getElementById('r-d-nm').textContent = arc.name.replace('El ','');
+  document.getElementById('r-d-pct').textContent = arquetipo.pct[arquetipo.winner] + '%';
+  document.getElementById('r-s-ic').textContent = arc2.icon;
+  document.getElementById('r-s-nm').textContent = arc2.name.replace('El ','');
+  document.getElementById('r-s-pct').textContent = arquetipo.pct[arquetipo.runnerup] + '%';
+  document.getElementById('r-insights').innerHTML = arc.insights.map(i => '<div class="insight"><h4>'+i.h+'</h4><p>'+i.t+'</p></div>').join('');
+  document.getElementById('r-fortalezas').innerHTML = fortalezas.length ?
+    fortalezas.map(f => '<div class="fortaleza"><h4>'+f.dim.icon+' '+f.dim.name+' — '+f.score+'/100</h4><p>'+f.msg+'</p></div>').join('') :
+    '<p style="color:var(--muted)">Tu perfil muestra desarrollo equilibrado en todas las dimensiones.</p>';
+  document.getElementById('r-brechas').innerHTML = brechas.length ?
+    brechas.map(b => '<div class="brecha"><h4>'+b.dim.icon+' '+b.dim.name+' — '+b.score+'/100</h4><p>'+b.msg+'</p></div>').join('') :
+    '<p style="color:var(--muted)">No hay brechas críticas en este momento.</p>';
+  document.getElementById('r-actions').innerHTML = actions.map((a, i) => '<div class="action-item"><div class="num">'+(i+1)+'</div><div class="desc">'+a.d+'</div><div class="impact">Impacto '+a.i+'</div></div>').join('');
+  setTimeout(() => renderResultCharts(arquetipo, madurez), 300);
+}
+
+function renderResultCharts(arquetipo, madurez){
+  const arcLabels = Object.keys(ARCHETYPES).map(k => ARCHETYPES[k].icon + ' ' + ARCHETYPES[k].name.replace('El ',''));
+  const arcData = Object.keys(ARCHETYPES).map(k => arquetipo.pct[k] || 0);
+  new Chart(document.getElementById('ch-arquetipos-result'), {
+    type:'radar',
+    data:{labels:arcLabels, datasets:[{label:'%', data:arcData, backgroundColor:'rgba(0,212,255,.15)', borderColor:'#00d4ff', borderWidth:2, pointBackgroundColor:'#00d4ff', pointBorderColor:'#fff', pointRadius:4}]},
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{r:{angleLines:{color:'rgba(255,255,255,.12)'},grid:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#fff',font:{size:10,weight:'600'}},ticks:{color:'rgba(255,255,255,.4)',backdropColor:'transparent',stepSize:25},min:0,max:Math.max(Math.max.apply(null,arcData),40)}}}
+  });
+  const mLabels = Object.keys(DIMENSIONS).map(k => DIMENSIONS[k].icon + ' ' + DIMENSIONS[k].name);
+  const mData = Object.keys(DIMENSIONS).map(k => madurez[k] || 0);
+  new Chart(document.getElementById('ch-dimensiones-result'), {
+    type:'radar',
+    data:{labels:mLabels, datasets:[{label:'Madurez', data:mData, backgroundColor:'rgba(123,47,255,.15)', borderColor:'#7b2fff', borderWidth:2, pointBackgroundColor:'#7b2fff', pointBorderColor:'#fff', pointRadius:4}]},
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{r:{angleLines:{color:'rgba(255,255,255,.12)'},grid:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#fff',font:{size:10,weight:'600'}},ticks:{color:'rgba(255,255,255,.4)',backdropColor:'transparent',stepSize:20},min:0,max:100}}}
+  });
+  const dimList = Object.entries(madurez).sort((a,b) => b[1]-a[1]).map(([k,v]) => {
+    const d = DIMENSIONS[k];
+    return '<div class="dim-row"><div class="lbl">'+d.icon+' '+d.name+'</div><div class="track"><div style="width:'+v+'%"></div></div><div class="val">'+v+'</div></div>';
+  }).join('');
+  document.getElementById('r-dim-list').innerHTML = dimList;
+}
+
+let adminData = [];
+
+function adminLogin(){
+  const pass = document.getElementById('adm-pass').value;
+  if(pass === ADMIN_PASS){
+    document.getElementById('admin-login').classList.add('hidden');
+    document.getElementById('admin-panel').classList.remove('hidden');
+    loadResponses();
+  } else {
+    document.getElementById('adm-login-err').classList.remove('hidden');
+  }
+}
+
+async function loadResponses(){
+  const status = document.getElementById('adm-status');
+  status.className = 'notice info';
+  status.innerHTML = '<span class="spinner"></span> Cargando respuestas desde GitHub...';
+  try {
+    const url = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/issues?state=open&labels=diagnostic&per_page=100';
+    const r = await fetch(url, { headers: { 'Authorization': 'token ' + TOKEN } });
+    if(!r.ok) throw new Error(r.status);
+    const issues = await r.json();
+    adminData = issues.map(iss => {
+      try {
+        const match = iss.body.match(/```json\n([\s\S]*?)\n```/);
+        if(!match) return null;
+        const data = JSON.parse(match[1]);
+        data._issue = iss.number;
+        return data;
+      } catch(e){ return null; }
+    }).filter(Boolean);
+    renderAdmin();
+    status.className = 'notice ok';
+    status.textContent = '✓ ' + adminData.length + ' respuesta' + (adminData.length===1?'':'s') + ' cargada' + (adminData.length===1?'':'s');
+    setTimeout(() => status.classList.add('hidden'), 2500);
+  } catch(e){
+    status.className = 'notice err';
+    status.textContent = '❌ Error cargando: ' + e.message;
+  }
+}
+
+function renderAdmin(){
+  document.getElementById('kpi-total').textContent = adminData.length;
+  if(adminData.length === 0){
+    document.getElementById('kpi-archetype').textContent = '—';
+    document.getElementById('kpi-completion').textContent = '0%';
+    document.getElementById('kpi-last').textContent = '—';
+    document.querySelector('#adm-table tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:30px">Aún no hay respuestas</td></tr>';
+    return;
+  }
+  const counts = {};
+  adminData.forEach(d => { const w = (d.arquetipo||{}).winner || d.winner; counts[w] = (counts[w]||0)+1; });
+  const dom = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('kpi-archetype').textContent = ARCHETYPES[dom[0]] ? ARCHETYPES[dom[0]].icon + ' ' + ARCHETYPES[dom[0]].name.replace('El ','') : dom[0];
+  const avg = adminData.reduce((s,d) => s + d.answers.filter(a=>a.value).length / QUESTIONS.length, 0) / adminData.length;
+  document.getElementById('kpi-completion').textContent = Math.round(avg*100) + '%';
+  const last = adminData.slice().sort((a,b) => new Date(b.submitted_at) - new Date(a.submitted_at))[0];
+  document.getElementById('kpi-last').textContent = new Date(last.submitted_at).toLocaleString('es-CO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+  const rows = adminData.map((d, i) => {
+    const w = (d.arquetipo||{}).winner || d.winner;
+    const arc = ARCHETYPES[w];
+    const date = new Date(d.submitted_at).toLocaleString('es-CO', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    return '<tr><td>'+date+'</td><td>'+d.user.name+'</td><td>'+d.user.email+'</td><td>'+(arc ? arc.icon + ' ' + arc.name.replace('El ','') : w)+'</td><td><button class="btn btn-ghost" style="padding:6px 14px;font-size:.8rem" onclick="showDetail('+i+')">Ver detalle →</button></td></tr>';
+  }).join('');
+  document.querySelector('#adm-table tbody').innerHTML = rows;
+}
+
+window._currentDetail = null;
+window.showDetail = function(i){
+  const d = adminData[i];
+  window._currentDetail = d;
+  const w = (d.arquetipo||{}).winner || d.winner;
+  const arc = ARCHETYPES[w];
+  document.getElementById('adm-detail-card').style.display = 'block';
+  document.getElementById('adm-detail-name').textContent = d.user.name + ' — ' + (arc ? arc.name : w);
+  let html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px">';
+  html += '<div class="kpi"><div class="v" style="font-size:1.3rem">'+(arc?arc.icon:'❓')+'</div><div class="l">'+(arc?arc.name:'-')+'</div></div>';
+  if(d.arquetipo){
+    Object.entries(d.arquetipo.pct).sort((a,b)=>b[1]-a[1]).slice(0,3).forEach(([k,v]) => {
+      const a = ARCHETYPES[k];
+      html += '<div class="kpi"><div class="v" style="font-size:1.3rem">'+v+'%</div><div class="l">'+(a?a.name.replace('El ',''):k)+'</div></div>';
+    });
+  }
+  html += '</div>';
+  if(d.madurez){
+    html += '<h3 style="color:var(--cyan);margin:20px 0 10px">🎯 Madurez por dimensión</h3><div class="dim-score-list">';
+    Object.entries(d.madurez).sort((a,b)=>b[1]-a[1]).forEach(([k,v]) => {
+      const dd = DIMENSIONS[k]; if(!dd) return;
+      html += '<div class="dim-row"><div class="lbl">'+dd.icon+' '+dd.name+'</div><div class="track"><div style="width:'+v+'%"></div></div><div class="val">'+v+'</div></div>';
+    });
+    html += '</div>';
+  }
+  const byDim = {};
+  d.answers.forEach(a => { if(!byDim[a.dim]) byDim[a.dim] = []; byDim[a.dim].push(a); });
+  html += '<h3 style="color:var(--cyan);margin:24px 0 12px">📋 Respuestas detalladas</h3>';
+  Object.entries(byDim).forEach(([dim, ans]) => {
+    html += '<div class="card" style="margin-bottom:14px;padding:18px"><h4 style="color:var(--cyan);font-size:.95rem;margin-bottom:10px">'+dim+'</h4>';
+    ans.forEach(a => {
+      html += '<div style="margin-bottom:14px"><p style="font-size:.85rem;color:var(--muted);margin-bottom:4px">'+a.q+'</p><p style="font-size:.95rem">→ '+(a.value || '<em style="color:var(--muted)">(sin responder)</em>')+'</p></div>';
+    });
+    html += '</div>';
+  });
+  document.getElementById('adm-detail-body').innerHTML = html;
+  document.getElementById('adm-detail-card').scrollIntoView({behavior:'smooth'});
+};
+
+async function deleteCurrentResp(){
+  const d = window._currentDetail;
+  if(!d || !d._issue){ alert('No se puede eliminar (sin ID)'); return; }
+  if(!confirm('¿Eliminar la respuesta de "'+d.user.name+'"? No se puede deshacer.')) return;
+  try {
+    const r = await fetch('https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/issues/' + d._issue, {
+      method:'PATCH',
+      headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify({state:'closed'})
+    });
+    if(!r.ok) throw new Error(r.status);
+    alert('Respuesta eliminada.');
+    document.getElementById('adm-detail-card').style.display = 'none';
+    loadResponses();
+  } catch(e){ alert('Error: '+e.message); }
+}
+
+function exportExcel(){
+  if(!adminData.length){ alert('No hay datos para exportar.'); return; }
+  const wb = XLSX.utils.book_new();
+  const summary = adminData.map(d => {
+    const w = (d.arquetipo||{}).winner || d.winner;
+    const row = { Fecha: new Date(d.submitted_at).toLocaleString('es-CO'), Nombre: d.user.name, Email: d.user.email, Arquetipo: ARCHETYPES[w] ? ARCHETYPES[w].name : w };
+    if(d.arquetipo) Object.entries(d.arquetipo.pct).forEach(([k,v]) => row['Arc_'+k] = v);
+    if(d.madurez) Object.entries(d.madurez).forEach(([k,v]) => row['Mad_'+k] = v);
+    return row;
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summary), 'Resumen');
+  const detail = [];
+  adminData.forEach(d => d.answers.forEach(a => detail.push({
+    Persona: d.user.name, Fecha: new Date(d.submitted_at).toLocaleString('es-CO'),
+    Dimensión: a.dim, Pregunta: a.q, Respuesta: a.value || ''
+  })));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(detail), 'Detalle');
+  XLSX.writeFile(wb, 'diagnostico-david-aponte-' + new Date().toISOString().slice(0,10) + '.xlsx');
+}
+
+async function loadDashboard(){
+  const status = document.getElementById('dash-status');
+  status.className = 'notice info';
+  status.innerHTML = '<span class="spinner"></span> Cargando datos...';
+  try {
+    const url = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/issues?state=open&labels=diagnostic&per_page=100';
+    const r = await fetch(url, { headers: { 'Authorization': 'token ' + TOKEN } });
+    if(!r.ok) throw new Error(r.status);
+    const issues = await r.json();
+    adminData = issues.map(iss => {
+      try { const m = iss.body.match(/```json\n([\s\S]*?)\n```/); return m ? JSON.parse(m[1]) : null; }
+      catch(e){ return null; }
+    }).filter(Boolean);
+    if(adminData.length === 0){
+      status.className = 'notice info';
+      status.textContent = 'Aún no hay respuestas.';
+      return;
+    }
+    status.classList.add('hidden');
+    renderDashboard();
+  } catch(e){
+    status.className = 'notice err';
+    status.textContent = '❌ Error: ' + e.message;
+  }
+}
+
+function renderDashboard(){
+  const d = adminData[adminData.length - 1];
+  const arq = d.arquetipo || {pct:{},winner:d.winner};
+  const mad = d.madurez || {};
+  const aLabels = Object.keys(ARCHETYPES).map(k => ARCHETYPES[k].icon + ' ' + ARCHETYPES[k].name.replace('El ',''));
+  const aData = Object.keys(ARCHETYPES).map(k => arq.pct[k] || 0);
+  if(window._chArq) window._chArq.destroy();
+  window._chArq = new Chart(document.getElementById('ch-archetypes'), {
+    type:'radar', data:{labels:aLabels, datasets:[{label:d.user.name, data:aData, backgroundColor:'rgba(0,212,255,.15)', borderColor:'#00d4ff', borderWidth:2, pointBackgroundColor:'#00d4ff'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#fff'}}},scales:{r:{angleLines:{color:'rgba(255,255,255,.12)'},grid:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#fff',font:{size:11}},ticks:{color:'rgba(255,255,255,.4)',backdropColor:'transparent'},min:0,max:Math.max(Math.max.apply(null,aData),40)}}}
+  });
+  const mLabels = Object.keys(DIMENSIONS).map(k => DIMENSIONS[k].icon + ' ' + DIMENSIONS[k].name);
+  const mData = Object.keys(DIMENSIONS).map(k => mad[k] || 0);
+  if(window._chDim) window._chDim.destroy();
+  window._chDim = new Chart(document.getElementById('ch-dim'), {
+    type:'radar', data:{labels:mLabels, datasets:[{label:'Madurez', data:mData, backgroundColor:'rgba(123,47,255,.15)', borderColor:'#7b2fff', borderWidth:2, pointBackgroundColor:'#7b2fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#fff'}}},scales:{r:{angleLines:{color:'rgba(255,255,255,.12)'},grid:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#fff',font:{size:11}},ticks:{color:'rgba(255,255,255,.4)',backdropColor:'transparent'},min:0,max:100}}}
+  });
+  document.getElementById('dash-dim-list').innerHTML = Object.entries(mad).sort((a,b)=>b[1]-a[1]).map(([k,v]) => {
+    const dd = DIMENSIONS[k]; if(!dd) return '';
+    return '<div class="dim-row"><div class="lbl">'+dd.icon+' '+dd.name+'</div><div class="track"><div style="width:'+v+'%"></div></div><div class="val">'+v+'</div></div>';
+  }).join('');
+  document.getElementById('dash-fort').innerHTML = (d.fortalezas || []).map(f => '<div class="fortaleza"><h4>'+f.dim.icon+' '+f.dim.name+' — '+f.score+'/100</h4><p>'+f.msg+'</p></div>').join('') || '<p style="color:var(--muted)">—</p>';
+  document.getElementById('dash-brec').innerHTML = (d.brechas || []).map(b => '<div class="brecha"><h4>'+b.dim.icon+' '+b.dim.name+' — '+b.score+'/100</h4><p>'+b.msg+'</p></div>').join('') || '<p style="color:var(--muted)">—</p>';
+  const arc = ARCHETYPES[arq.winner];
+  let prop = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px">';
+  prop += '<div class="kpi"><div class="v" style="font-size:1.5rem">'+arc.icon+'</div><div class="l">Arquetipo dominante</div><div style="margin-top:6px;font-weight:700">'+arc.name+'</div></div>';
+  prop += '<div class="kpi"><div class="v" style="font-size:1.2rem">'+(d.brechas||[]).length+' brechas</div><div class="l">A cerrar prioritariamente</div></div>';
+  prop += '<div class="kpi"><div class="v" style="font-size:1.2rem">'+(d.fortalezas||[]).length+' fortalezas</div><div class="l">A capitalizar</div></div>';
+  prop += '</div>';
+  prop += '<h4 style="color:var(--cyan);margin-bottom:12px">🚀 Plan de acción sugerido</h4>';
+  (d.actions || []).forEach((a,i) => {
+    prop += '<div class="action-item" style="margin-bottom:10px"><div class="num">'+(i+1)+'</div><div class="desc">'+a.d+'</div><div class="impact">Impacto '+a.i+'</div></div>';
+  });
+  prop += '<h4 style="color:var(--cyan);margin:24px 0 12px">📝 Respuestas abiertas de David</h4>';
+  d.answers.filter(a => a.type === 'text' && a.value).forEach(a => {
+    prop += '<div class="insight"><h4>'+a.q+'</h4><p>"'+a.value+'"</p></div>';
+  });
+  document.getElementById('dash-proposal-body').innerHTML = prop;
+}
+
+(function(){
+  try {
+    const cnv = document.getElementById('bg'); if(!cnv) return;
+    const ctx = cnv.getContext('2d');
+    let W,H,parts=[];
+    const onResize=()=>{W=cnv.width=innerWidth;H=cnv.height=innerHeight};
+    onResize();addEventListener('resize',onResize);
+    const cols=['#00d4ff','#7b2fff','#ff8c00'];
+    const N=innerWidth<700?12:18;
+    for(let i=0;i<N;i++)parts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,r:Math.random()*1.5+.5,c:cols[i%3],a:Math.random()*.4+.2});
+    function tick(){
+      ctx.clearRect(0,0,W,H);
+      parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c;ctx.globalAlpha=p.a;ctx.shadowBlur=8;ctx.shadowColor=p.c;ctx.fill()});
+      ctx.globalAlpha=1;ctx.shadowBlur=0;requestAnimationFrame(tick);
+    }
+    tick();
+  } catch(e){}
+})();
+
+document.addEventListener('DOMContentLoaded', () => {
+  const view = getView();
+  showView(view);
+  if(view === 'form'){
+    document.getElementById('btn-context-next').addEventListener('click', gotoIntro);
+    document.getElementById('btn-start').addEventListener('click', startForm);
+    document.getElementById('btn-next').addEventListener('click', nextQuestion);
+    document.getElementById('btn-prev').addEventListener('click', prevQuestion);
+  }
+  if(view === 'admin'){
+    document.getElementById('adm-login-btn').addEventListener('click', adminLogin);
+    document.getElementById('adm-pass').addEventListener('keypress', e => { if(e.key === 'Enter') adminLogin(); });
+    document.getElementById('adm-refresh').addEventListener('click', loadResponses);
+    document.getElementById('adm-export').addEventListener('click', exportExcel);
+    document.getElementById('adm-dashboard').addEventListener('click', () => { window.location.search = '?dashboard'; });
+    document.getElementById('adm-close-detail').addEventListener('click', () => { document.getElementById('adm-detail-card').style.display = 'none'; });
+    document.getElementById('adm-delete-resp').addEventListener('click', deleteCurrentResp);
+  }
+  if(view === 'dashboard'){
+    loadDashboard();
+    document.getElementById('dash-refresh').addEventListener('click', loadDashboard);
+    document.querySelectorAll('.tab').forEach(t => {
+      t.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        ['perfil','madurez','brechas','propuesta'].forEach(n => document.getElementById('tab-'+n).classList.add('hidden'));
+        document.getElementById('tab-' + t.dataset.tab).classList.remove('hidden');
+      });
+    });
+  }
+});
+</script>
+</body>
+</html>
