@@ -26,7 +26,7 @@ body{
 }
 canvas.bg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.4}
 
-.app{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:24px 20px 60px}
+.app{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:24px 20px 60px}
 .brand{display:flex;align-items:center;gap:10px;padding:14px 0 22px;font-weight:800}
 .brand .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));box-shadow:0 0 14px var(--cyan)}
 .brand small{color:var(--muted);font-weight:500;margin-left:auto;font-size:.78rem}
@@ -66,22 +66,37 @@ h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
 .opt.selected{border-color:var(--cyan);background:rgba(0,212,255,.12);box-shadow:0 0 20px rgba(0,212,255,.2)}
 .opt .opt-ic{font-size:1.4rem;flex-shrink:0}
 .opt .opt-txt{flex:1;line-height:1.4}
+.opt .opt-check{width:20px;height:20px;border:2px solid rgba(0,212,255,.3);border-radius:5px;flex-shrink:0;position:relative}
+.opt.selected .opt-check{background:var(--cyan);border-color:var(--cyan)}
+.opt.selected .opt-check::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--navy);font-weight:900;font-size:.85rem}
 
-.checkbox-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
-.check{background:rgba(255,255,255,.04);border:1.5px solid rgba(0,212,255,.18);border-radius:12px;padding:14px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:10px;font-size:.9rem}
-.check:hover{border-color:var(--cyan)}
-.check.selected{border-color:var(--cyan);background:rgba(0,212,255,.1)}
-.check .ck-mark{width:20px;height:20px;border:2px solid var(--muted);border-radius:5px;flex-shrink:0;position:relative}
-.check.selected .ck-mark{background:var(--cyan);border-color:var(--cyan)}
-.check.selected .ck-mark::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--navy);font-weight:900;font-size:.85rem}
-
-.range-wrap{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.04);border:1.5px solid var(--border);border-radius:12px;padding:14px 18px}
-.range-wrap input[type=range]{flex:1;accent-color:var(--cyan)}
-.range-val{font-weight:800;color:var(--cyan);font-size:1.3rem;min-width:60px;text-align:right}
+.multi-info{background:rgba(123,47,255,.1);border:1px solid var(--purple);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:.85rem;color:rgba(255,255,255,.85);display:flex;align-items:center;gap:10px}
+.multi-info .ic{font-size:1.2rem}
 
 .dim-tag{display:inline-block;padding:4px 12px;background:rgba(0,212,255,.1);border:1px solid var(--cyan);border-radius:50px;font-size:.72rem;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
 
 .nav-row{display:flex;justify-content:space-between;gap:12px;margin-top:24px}
+
+/* CONTEXT SCREEN — Executive Summary */
+.context-hero{background:linear-gradient(135deg,rgba(255,140,0,.08),rgba(255,71,87,.04));border:1.5px solid rgba(255,140,0,.4);border-radius:24px;padding:30px;margin-bottom:24px}
+.context-score{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center}
+@media(max-width:600px){.context-score{grid-template-columns:1fr;text-align:center}}
+.context-score .big{font-size:clamp(4.5rem,12vw,7rem);font-weight:900;line-height:.9;background:linear-gradient(135deg,var(--orange),var(--red));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.context-score .label{color:var(--muted);font-size:.78rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.context-score .verdict{display:inline-block;margin-top:10px;padding:6px 14px;border-radius:50px;background:rgba(255,140,0,.15);border:1px solid var(--orange);color:var(--orange);font-weight:700;font-size:.78rem}
+
+.channels-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:20px}
+.channel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center}
+.channel .ic{font-size:1.5rem;margin-bottom:4px}
+.channel .nm{font-size:.78rem;color:var(--muted);font-weight:600;margin-bottom:4px}
+.channel .sc{font-size:1.5rem;font-weight:900}
+.channel .barc{height:4px;border-radius:50px;background:rgba(255,255,255,.08);margin-top:6px;overflow:hidden}
+.channel .barc > div{height:100%;border-radius:50px}
+
+.bombas-list{margin-top:20px}
+.bomba-mini{background:rgba(255,71,87,.06);border-left:3px solid var(--red);border-radius:8px;padding:12px 16px;margin-bottom:10px}
+.bomba-mini .ttl{font-weight:700;font-size:.92rem;color:#fff}
+.bomba-mini .desc{font-size:.84rem;color:var(--muted);margin-top:4px}
 
 /* RESULTS */
 .result-hero{text-align:center;padding:40px 20px;background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(123,47,255,.08));border:1.5px solid var(--cyan);border-radius:24px;margin-bottom:24px}
@@ -89,9 +104,35 @@ h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
 .result-hero h2{font-size:2.2rem;margin-bottom:8px}
 .result-hero .subtitle{color:var(--muted);font-size:1.1rem;max-width:600px;margin:0 auto}
 
+.dual-archetypes{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center;margin:20px auto;max-width:720px}
+@media(max-width:600px){.dual-archetypes{grid-template-columns:1fr}}
+.dual-arc{background:var(--card);border:1.5px solid var(--cyan);border-radius:16px;padding:18px;text-align:center}
+.dual-arc.secondary{border-color:rgba(123,47,255,.5)}
+.dual-arc .l{font-size:.7rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
+.dual-arc .ic{font-size:2rem;margin:6px 0}
+.dual-arc .nm{font-weight:700;margin-bottom:2px}
+.dual-arc .pct{color:var(--cyan);font-weight:800;font-size:1rem;margin-top:4px}
+.dual-arc.secondary .pct{color:var(--purple)}
+.dual-plus{font-size:1.8rem;color:var(--muted);font-weight:300}
+
 .insight{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px;border-left:4px solid var(--cyan)}
 .insight h4{color:var(--cyan);font-size:.95rem;margin-bottom:6px}
 .insight p{color:rgba(255,255,255,.8);font-size:.95rem}
+
+.brecha{background:linear-gradient(135deg,rgba(255,140,0,.05),rgba(255,71,87,.05));border:1px solid rgba(255,140,0,.3);border-left:4px solid var(--orange);border-radius:14px;padding:18px;margin-bottom:14px}
+.brecha h4{color:var(--orange);font-size:.95rem;margin-bottom:6px}
+.brecha p{color:rgba(255,255,255,.8);font-size:.92rem}
+
+.fortaleza{background:rgba(0,212,138,.05);border:1px solid rgba(0,212,138,.3);border-left:4px solid var(--green);border-radius:14px;padding:18px;margin-bottom:14px}
+.fortaleza h4{color:var(--green);font-size:.95rem;margin-bottom:6px}
+.fortaleza p{color:rgba(255,255,255,.8);font-size:.92rem}
+
+.action-grid{display:grid;gap:12px;margin-top:14px}
+.action-item{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:14px 18px;background:var(--card);border:1px solid var(--border);border-radius:12px}
+.action-item .num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.95rem}
+.action-item .desc{font-size:.92rem}
+.action-item .desc strong{color:var(--cyan)}
+.action-item .impact{font-size:.7rem;color:var(--orange);font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px 10px;background:rgba(255,140,0,.1);border-radius:50px;border:1px solid var(--orange)}
 
 /* ADMIN/DASHBOARD */
 .admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px}
@@ -104,13 +145,15 @@ h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
 .resp-table th{color:var(--cyan);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:1px}
 .resp-table tr:hover{background:rgba(0,212,255,.03)}
 
-.tabs{display:flex;gap:6px;margin-bottom:20px;border-bottom:1px solid rgba(0,212,255,.15);padding-bottom:0}
+.tabs{display:flex;gap:6px;margin-bottom:20px;border-bottom:1px solid rgba(0,212,255,.15);padding-bottom:0;flex-wrap:wrap}
 .tab{padding:10px 18px;background:transparent;border:none;color:var(--muted);cursor:pointer;font-family:inherit;font-weight:600;font-size:.88rem;border-bottom:2px solid transparent;transition:.2s}
 .tab:hover{color:#fff}
 .tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
 
 .chart-wrap{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:18px}
-.chart-wrap canvas{max-height:340px}
+.chart-wrap canvas{max-height:380px}
+.chart-wrap h3{margin-bottom:14px}
+.chart-wrap p.cap{color:var(--muted);font-size:.85rem;margin-top:10px}
 
 .hidden{display:none!important}
 
@@ -130,10 +173,12 @@ h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
 .meta-card .ic{font-size:1.6rem;margin-bottom:6px}
 .meta-card .lbl{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
 
-.archetype-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;font-size:.85rem;transition:.2s}
-.archetype-card .ic{font-size:2rem;margin-bottom:6px}
-.archetype-card .nm{font-weight:700;margin-bottom:2px}
-.archetype-card .sc{color:var(--cyan);font-weight:800;font-size:1.1rem;margin-top:4px}
+.dim-score-list{display:grid;gap:10px;margin-top:14px}
+.dim-row{display:grid;grid-template-columns:170px 1fr 50px;gap:14px;align-items:center}
+.dim-row .lbl{font-size:.85rem;color:rgba(255,255,255,.85);font-weight:600}
+.dim-row .track{height:8px;background:rgba(255,255,255,.08);border-radius:50px;overflow:hidden}
+.dim-row .track > div{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--cyan),var(--purple))}
+.dim-row .val{color:var(--cyan);font-weight:800;text-align:right;font-size:.95rem}
 
 @media(max-width:600px){
   .app{padding:18px 14px 40px}
@@ -142,6 +187,9 @@ h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
   .result-hero .archetype-ic{font-size:4rem}
   .result-hero h2{font-size:1.6rem}
   .tabs{overflow-x:auto;white-space:nowrap}
+  .action-item{grid-template-columns:auto 1fr;gap:10px}
+  .action-item .impact{grid-column:2}
+  .dim-row{grid-template-columns:1fr;gap:6px}
 }
 </style>
 </head>
@@ -160,31 +208,110 @@ h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
 <!-- ============ VIEW: FORM (default) ============ -->
 <div id="view-form">
 
-  <!-- Intro -->
-  <div id="screen-intro" class="card glow">
-    <span class="eyebrow">Para David Aponte · Confidencial</span>
-    <h1>Antes de construir el camino, <span class="gradient">queremos entenderte de verdad.</span></h1>
-    <p class="lead">Este diagnóstico nos va a permitir diseñar contigo el acompañamiento de los próximos 6 meses. No hay respuestas correctas — solo necesitamos claridad sobre tu visión, tus prioridades y tu forma de trabajar.</p>
+  <!-- Screen 0: CONTEXT — Resumen ejecutivo del diagnóstico previo -->
+  <div id="screen-context">
+    <span class="eyebrow">Punto de partida · 22 may 2026</span>
+    <h1>Antes de las preguntas, <span class="gradient">esto es lo que ya sabemos.</span></h1>
+    <p class="lead">El diagnóstico que hicimos sobre tu presencia digital arrojó un puntaje de 48/100. Esa es la base desde donde partimos. Lo que sigue (las preguntas que vienen) es para entender desde TI cómo lo queremos llevar a 75-80 en 6 meses.</p>
 
-    <div class="intro-meta">
-      <div class="meta-card"><div class="ic">⏱️</div><div><strong>25 min</strong></div><div class="lbl">Tiempo</div></div>
-      <div class="meta-card"><div class="ic">📊</div><div><strong>8 áreas</strong></div><div class="lbl">A explorar</div></div>
-      <div class="meta-card"><div class="ic">🎯</div><div><strong>1 perfil</strong></div><div class="lbl">Tu arquetipo</div></div>
-      <div class="meta-card"><div class="ic">🔒</div><div><strong>Privado</strong></div><div class="lbl">Solo Nathalia + Jorge</div></div>
+    <div class="context-hero">
+      <div class="context-score">
+        <div style="text-align:center">
+          <div class="label">Reputación digital actual</div>
+          <div class="big">48</div>
+          <div style="font-size:1.1rem;font-weight:700;opacity:.6">/ 100</div>
+          <div class="verdict">Potencial sólido · Ejecución por construir</div>
+        </div>
+        <div>
+          <h3 style="color:var(--orange);margin-bottom:8px">Estado por canal hoy</h3>
+          <p style="color:var(--muted);font-size:.92rem">Tienes credenciales reales, historia concreta y nicho con demanda. La ejecución digital se quedó atrás. Esto es lo que muestra cada canal cuando alguien te busca:</p>
+        </div>
+      </div>
+      <div class="channels-grid">
+        <div class="channel">
+          <div class="ic">🌐</div>
+          <div class="nm">Web</div>
+          <div class="sc" style="color:var(--orange)">40</div>
+          <div class="barc"><div style="width:40%;background:linear-gradient(90deg,var(--orange),var(--yellow))"></div></div>
+        </div>
+        <div class="channel">
+          <div class="ic">💼</div>
+          <div class="nm">LinkedIn</div>
+          <div class="sc" style="color:var(--yellow)">52</div>
+          <div class="barc"><div style="width:52%;background:linear-gradient(90deg,var(--yellow),var(--green))"></div></div>
+        </div>
+        <div class="channel">
+          <div class="ic">📱</div>
+          <div class="nm">Instagram</div>
+          <div class="sc" style="color:var(--red)">36</div>
+          <div class="barc"><div style="width:36%;background:linear-gradient(90deg,var(--red),var(--orange))"></div></div>
+        </div>
+        <div class="channel">
+          <div class="ic">⚡</div>
+          <div class="nm">Performance</div>
+          <div class="sc" style="color:var(--green)">64</div>
+          <div class="barc"><div style="width:64%;background:linear-gradient(90deg,var(--green),var(--cyan))"></div></div>
+        </div>
+      </div>
     </div>
 
-    <p style="color:var(--muted);font-size:.92rem;margin-bottom:18px">Al final vas a recibir tu <strong style="color:#fff">arquetipo de marca personal</strong> — el camino que más resuena con quién eres y dónde quieres llegar. Y nosotros recibimos toda tu información para armar la propuesta del acompañamiento.</p>
-
-    <div class="field">
-      <label>Tu nombre completo *</label>
-      <input type="text" id="f-name" placeholder="David Aponte Becerra" value="David Aponte Becerra" />
+    <div class="card">
+      <h3 style="color:var(--red);margin-bottom:8px">⚠️ Lo que conviene resolver primero</h3>
+      <p style="color:var(--muted);font-size:.92rem;margin-bottom:14px">4 prioridades urgentes detectadas en el diagnóstico. Tres se resuelven en horas, la cuarta en una semana.</p>
+      <div class="bombas-list">
+        <div class="bomba-mini">
+          <div class="ttl">1. Texto de plantilla en inglés en la página del curso</div>
+          <div class="desc">Habla de hipnoterapia y Reiki — quedó pegado de la plantilla. Le quita credibilidad inmediata al precio de $3.3M.</div>
+        </div>
+        <div class="bomba-mini">
+          <div class="ttl">2. Certificación AMV vencida desde 2023</div>
+          <div class="desc">Tema de consistencia regulatoria entre lo que dice la web y los registros públicos.</div>
+        </div>
+        <div class="bomba-mini">
+          <div class="ttl">3. "Diagnóstico gratuito" hoy es un formulario, no entrega valor</div>
+          <div class="desc">Brecha de expectativa que dispara la sensación de "promesa &gt; evidencia".</div>
+        </div>
+        <div class="bomba-mini">
+          <div class="ttl">4. Video animado en sección Destacado de LinkedIn</div>
+          <div class="desc">No acompaña el nivel de tu trayectoria real (iNNpulsa, Portafolio, Coomeva).</div>
+        </div>
+      </div>
     </div>
-    <div class="field">
-      <label>Tu correo *</label>
-      <input type="email" id="f-email" placeholder="david@davidaponte.com" />
-    </div>
 
-    <button class="btn" id="btn-start">Comenzar diagnóstico →</button>
+    <div class="card" style="background:linear-gradient(135deg,rgba(0,212,255,.06),rgba(123,47,255,.06));border-color:var(--cyan)">
+      <h3 class="gradient" style="font-size:1.3rem">Ahora es tu turno.</h3>
+      <p style="color:rgba(255,255,255,.78);margin-top:10px">Las próximas 33 preguntas son para entender desde ti a profundidad: tu visión, tu modelo, tu posicionamiento competitivo, tu equipo actual, tus prioridades de inversión, tu mentalidad y cómo quieres trabajar. Con eso armamos una propuesta verdaderamente medida. Tiempo estimado: <strong style="color:#fff">25-30 min</strong>.</p>
+      <button class="btn" id="btn-context-next" style="margin-top:18px">Continuar al diagnóstico →</button>
+    </div>
+  </div>
+
+  <!-- Screen 1: INTRO con datos -->
+  <div id="screen-intro" class="hidden">
+    <div class="card glow">
+      <span class="eyebrow">Confidencial · Para David Aponte</span>
+      <h1>Cuéntanos quién <span class="gradient">eres y dónde quieres llegar.</span></h1>
+      <p class="lead">No hay respuestas correctas — solo necesitamos claridad sobre tu visión, tus prioridades y tu forma de trabajar.</p>
+
+      <div class="intro-meta">
+        <div class="meta-card"><div class="ic">⏱️</div><div><strong>25-30 min</strong></div><div class="lbl">Tiempo</div></div>
+        <div class="meta-card"><div class="ic">📊</div><div><strong>33 preguntas</strong></div><div class="lbl">8 dimensiones</div></div>
+        <div class="meta-card"><div class="ic">🎯</div><div><strong>Arquetipo</strong></div><div class="lbl">+ Telaraña de madurez</div></div>
+        <div class="meta-card"><div class="ic">🔒</div><div><strong>Privado</strong></div><div class="lbl">Solo Nathalia + Jorge</div></div>
+      </div>
+
+      <p style="color:var(--muted);font-size:.92rem;margin-bottom:18px">Al final vas a recibir tu <strong style="color:#fff">arquetipo de marca personal financiera</strong>, una telaraña con tu madurez en las 8 dimensiones, las brechas críticas a resolver y un plan de acción priorizado.</p>
+
+      <div class="field">
+        <label>Tu nombre completo *</label>
+        <input type="text" id="f-name" placeholder="David Aponte Becerra" value="David Aponte Becerra" />
+      </div>
+      <div class="field">
+        <label>Tu correo *</label>
+        <input type="email" id="f-email" placeholder="david@davidaponte.com" />
+      </div>
+
+      <button class="btn" id="btn-start">Comenzar las 33 preguntas →</button>
+    </div>
   </div>
 
   <!-- Questions -->
@@ -192,12 +319,11 @@ h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
     <div class="progress"><div id="prog-bar" style="width:0%"></div></div>
     <div class="progress-label">
       <span id="prog-current">Pregunta 1</span>
+      <span id="prog-dim" style="color:var(--cyan);font-weight:700"></span>
       <span id="prog-total">de 18</span>
     </div>
 
-    <div class="card glow" id="question-card">
-      <!-- inyecta JS -->
-    </div>
+    <div class="card glow" id="question-card"></div>
 
     <div class="nav-row">
       <button class="btn btn-ghost" id="btn-prev">← Anterior</button>
@@ -209,33 +335,82 @@ h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
   <div id="screen-saving" class="hidden">
     <div class="card glow" style="text-align:center;padding:60px 20px">
       <div class="spinner" style="width:48px;height:48px;border-width:4px;margin-bottom:20px"></div>
-      <h2>Procesando tus respuestas...</h2>
-      <p class="lead" style="max-width:500px;margin:14px auto 0">Calculando tu arquetipo y guardando para Nathalia y Jorge.</p>
+      <h2>Analizando tus respuestas...</h2>
+      <p class="lead" style="max-width:500px;margin:14px auto 0">Calculando arquetipo, madurez por dimensión, brechas y plan de acción.</p>
     </div>
   </div>
 
   <!-- Result -->
   <div id="screen-result" class="hidden">
+    <!-- Arquetipo dominante + secundario -->
     <div class="result-hero">
       <div class="archetype-ic" id="r-icon">🎓</div>
-      <span class="eyebrow">Tu arquetipo</span>
+      <span class="eyebrow">Tu arquetipo dominante</span>
       <h2 id="r-name">El Maestro Digital</h2>
       <p class="subtitle" id="r-subtitle">El camino que más resuena contigo y tu visión.</p>
     </div>
 
     <div class="card">
-      <h3 style="margin-bottom:16px;color:var(--cyan)">📊 Tu mapa de arquetipos</h3>
-      <div class="checkbox-grid" id="r-archetypes-grid"></div>
+      <h3 style="text-align:center;color:var(--muted);font-size:.9rem;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px">Tu mezcla estratégica</h3>
+      <div class="dual-archetypes">
+        <div class="dual-arc">
+          <div class="l">Dominante</div>
+          <div class="ic" id="r-d-ic">🎓</div>
+          <div class="nm" id="r-d-nm">—</div>
+          <div class="pct" id="r-d-pct">—</div>
+        </div>
+        <div class="dual-plus">+</div>
+        <div class="dual-arc secondary">
+          <div class="l">Complementario</div>
+          <div class="ic" id="r-s-ic">🧭</div>
+          <div class="nm" id="r-s-nm">—</div>
+          <div class="pct" id="r-s-pct">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Radar arquetipos -->
+    <div class="chart-wrap">
+      <h3>📊 Telaraña: inclinación hacia los 8 arquetipos</h3>
+      <p class="cap">Cuanto más alto el puntaje en un eje, más alineado estás con ese camino. Lo ideal es no estar disperso — los 1-2 arquetipos más altos definen tu estrategia.</p>
+      <canvas id="ch-arquetipos-result"></canvas>
+    </div>
+
+    <!-- Radar dimensiones de madurez -->
+    <div class="chart-wrap">
+      <h3>🎯 Telaraña: madurez en las 8 dimensiones</h3>
+      <p class="cap">Tu nivel de claridad/consolidación en cada dimensión clave. Los ejes débiles son brechas a resolver con el acompañamiento; los fuertes son palancas que ya tienes.</p>
+      <canvas id="ch-dimensiones-result"></canvas>
+      <div class="dim-score-list" id="r-dim-list"></div>
+    </div>
+
+    <!-- Fortalezas + Brechas -->
+    <div class="card">
+      <h3 style="color:var(--green);margin-bottom:14px">✅ Tus fortalezas (lo que ya tienes a favor)</h3>
+      <div id="r-fortalezas"></div>
     </div>
 
     <div class="card">
-      <h3 style="margin-bottom:16px;color:var(--cyan)">💡 3 insights para tu camino</h3>
+      <h3 style="color:var(--orange);margin-bottom:14px">⚠️ Tus brechas críticas (lo que hay que cerrar)</h3>
+      <div id="r-brechas"></div>
+    </div>
+
+    <!-- Insights del arquetipo -->
+    <div class="card">
+      <h3 style="margin-bottom:16px;color:var(--cyan)">💡 3 insights estratégicos para tu arquetipo</h3>
       <div id="r-insights"></div>
     </div>
 
+    <!-- Plan de acción priorizado -->
+    <div class="card">
+      <h3 style="margin-bottom:8px;color:var(--cyan)">🚀 Plan de acción priorizado por impacto</h3>
+      <p style="color:var(--muted);font-size:.9rem;margin-bottom:14px">Las 5 primeras acciones que más mueven la aguja en tu caso específico.</p>
+      <div class="action-grid" id="r-actions"></div>
+    </div>
+
     <div class="card" style="text-align:center;background:linear-gradient(135deg,rgba(0,212,255,.06),rgba(123,47,255,.06));border-color:var(--cyan)">
-      <h3 class="gradient" style="font-size:1.3rem">Tu información ya está con Nathalia y Jorge.</h3>
-      <p style="color:var(--muted);margin-top:8px">En las próximas 48 horas te llega la propuesta del acompañamiento de 6 meses, diseñada a partir de tu arquetipo y tus prioridades. Cualquier cosa: <strong style="color:#fff">jorgeicone.com@gmail.com</strong></p>
+      <h3 class="gradient" style="font-size:1.3rem">Tu información completa ya está con Nathalia y Jorge.</h3>
+      <p style="color:var(--muted);margin-top:8px">En las próximas 48 horas te llega la propuesta del acompañamiento de 6 meses, diseñada a partir de tu arquetipo, tu madurez por dimensión y tus prioridades. Cualquier cosa: <strong style="color:#fff">jorgehugoperez@iconeialabs.com</strong></p>
     </div>
   </div>
 
@@ -288,9 +463,12 @@ h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
     </div>
 
     <div class="card" id="adm-detail-card" style="display:none">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
         <h3 id="adm-detail-name">Respuesta detallada</h3>
-        <button class="btn btn-ghost" id="adm-close-detail">✕ Cerrar</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" id="adm-delete-resp" style="border-color:var(--red);color:var(--red)">🗑️ Eliminar</button>
+          <button class="btn btn-ghost" id="adm-close-detail">✕ Cerrar</button>
+        </div>
       </div>
       <div id="adm-detail-body"></div>
     </div>
@@ -303,8 +481,8 @@ h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
 
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
     <div>
-      <span class="eyebrow">Dashboard · Visualización</span>
-      <h1 style="font-size:1.8rem">Análisis del diagnóstico</h1>
+      <span class="eyebrow">Dashboard · Análisis profundo</span>
+      <h1 style="font-size:1.8rem">Diagnóstico de David Aponte</h1>
     </div>
     <div style="display:flex;gap:10px">
       <button class="btn btn-ghost" id="dash-refresh">🔄 Actualizar</button>
@@ -315,35 +493,42 @@ h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
   <div id="dash-status" class="notice info">Cargando datos...</div>
 
   <div class="tabs">
-    <button class="tab active" data-tab="perfil">📊 Perfil</button>
-    <button class="tab" data-tab="prioridades">🎯 Prioridades de inversión</button>
-    <button class="tab" data-tab="propuesta">💡 Base para propuesta</button>
+    <button class="tab active" data-tab="perfil">📊 Arquetipos</button>
+    <button class="tab" data-tab="madurez">🎯 Madurez</button>
+    <button class="tab" data-tab="brechas">⚠️ Brechas</button>
+    <button class="tab" data-tab="propuesta">💡 Base propuesta</button>
   </div>
 
   <div id="tab-perfil">
     <div class="chart-wrap">
-      <h3>Distribución por arquetipo (puntajes)</h3>
+      <h3>Telaraña: inclinación hacia los 8 arquetipos</h3>
       <canvas id="ch-archetypes"></canvas>
-    </div>
-    <div class="chart-wrap">
-      <h3>Disponibilidad de tiempo vs ambición</h3>
-      <canvas id="ch-time-amb"></canvas>
     </div>
   </div>
 
-  <div id="tab-prioridades" class="hidden">
+  <div id="tab-madurez" class="hidden">
     <div class="chart-wrap">
-      <h3>Ranking de áreas donde quiere invertir</h3>
-      <canvas id="ch-priorities"></canvas>
+      <h3>Telaraña: madurez en las 8 dimensiones</h3>
+      <canvas id="ch-dim"></canvas>
+      <div class="dim-score-list" id="dash-dim-list"></div>
+    </div>
+  </div>
+
+  <div id="tab-brechas" class="hidden">
+    <div class="card">
+      <h3 style="color:var(--green);margin-bottom:14px">✅ Fortalezas identificadas</h3>
+      <div id="dash-fort"></div>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--orange);margin-bottom:14px">⚠️ Brechas críticas</h3>
+      <div id="dash-brec"></div>
     </div>
   </div>
 
   <div id="tab-propuesta" class="hidden">
     <div class="card">
       <h3 style="color:var(--cyan);margin-bottom:14px">📋 Base para la propuesta de acompañamiento</h3>
-      <div id="dash-proposal-body">
-        <p style="color:var(--muted)">Cargando síntesis...</p>
-      </div>
+      <div id="dash-proposal-body"><p style="color:var(--muted)">Cargando síntesis...</p></div>
     </div>
   </div>
 
@@ -362,12 +547,26 @@ const TOKEN_PARTS = ['ghp_6g1MgGH3VXcG', '35wqRtntGfzdWBpmKz0vl4pO'];
 const TOKEN = TOKEN_PARTS.join('');
 
 // =============================================================
-// 8 ARQUETIPOS DE MARCA PERSONAL FINANCIERA
+// 8 DIMENSIONES (para radar de madurez)
+// =============================================================
+const DIMENSIONS = {
+  vision:     { name:'Visión',           icon:'🧭', desc:'Claridad sobre dónde quiere estar en 24 meses' },
+  modelo:     { name:'Modelo monetización', icon:'💰', desc:'Definición del modelo de ingresos prioritario' },
+  tiempo:     { name:'Tiempo disponible',icon:'⏱️', desc:'Horas personales para marca/contenido' },
+  audiencia:  { name:'Audiencia objetivo',icon:'🎯', desc:'Claridad sobre el cliente ideal' },
+  cursos:     { name:'Madurez de cursos',icon:'🎓', desc:'Estado y plan de su oferta educativa' },
+  metricas:   { name:'Métricas claras',   icon:'📈', desc:'Objetivos cuantitativos a 6 meses' },
+  inversion:  { name:'Prioridades inversión',icon:'💸', desc:'Foco claro de dónde invertir primero' },
+  acompañamiento:{name:'Estilo de trabajo',icon:'🤝', desc:'Claridad sobre cómo quiere trabajar con equipo' }
+};
+
+// =============================================================
+// 8 ARQUETIPOS
 // =============================================================
 const ARCHETYPES = {
   maestro: {
     icon:'🎓', name:'El Maestro Digital',
-    subtitle:'Quieres escalar tu conocimiento a través de cursos online y llegar a miles. Tu negocio se vuelve activo digital.',
+    subtitle:'Tu camino es escalar conocimiento a través de cursos online y construir un activo digital evergreen.',
     insights:[
       {h:'Tu motor es el contenido evergreen', t:'Tu mayor palanca es construir un curso insignia bien estructurado en Hotmart con embudo automatizado. Una vez puesto, vende solo.'},
       {h:'Necesitas SEO y autoridad orgánica', t:'Tu cliente te busca en Google y YouTube. Sin contenido posicionado, todo tu tráfico depende de pauta paga — y eso encarece el modelo.'},
@@ -376,7 +575,7 @@ const ARCHETYPES = {
   },
   estratega: {
     icon:'🧭', name:'El Estratega Premium',
-    subtitle:'Quieres posicionarte como asesor de alto nivel, con pocos clientes pero de alto ticket. Calidad sobre escala.',
+    subtitle:'Tu camino es posicionarte como asesor de alto nivel: pocos clientes, alto ticket, calidad sobre escala.',
     insights:[
       {h:'Tu posicionamiento debe gritar autoridad', t:'Tu marca tiene que reflejar exclusividad: cero plantillas, cero promesas masivas. Tu web debe parecerse más a la de un fondo de inversión que a la de un coach.'},
       {h:'LinkedIn es tu canal #1', t:'Tu cliente premium vive ahí. Necesitas 2-3 publicaciones de pensamiento al mes que generen conversación entre tomadores de decisión.'},
@@ -385,7 +584,7 @@ const ARCHETYPES = {
   },
   comunidad: {
     icon:'🌐', name:'El Líder de Comunidad',
-    subtitle:'Quieres construir una tribu activa con membresía recurrente. Ingresos predecibles, relación a largo plazo.',
+    subtitle:'Tu camino es construir una tribu activa con membresía recurrente. Ingresos predecibles, relación a largo plazo.',
     insights:[
       {h:'Tu activo es la frecuencia, no el alcance', t:'No necesitas millones de seguidores — necesitas 500 personas que paguen $100k/mes y vivan en tu comunidad. Eso son $50M mensuales recurrentes.'},
       {h:'Tu marca personal alimenta la comunidad', t:'Tu contenido público es el imán que lleva a la comunidad cerrada. La estrategia de redes cambia: das valor masivo afuera, profundidad adentro.'},
@@ -403,7 +602,7 @@ const ARCHETYPES = {
   },
   consultor: {
     icon:'💼', name:'El Consultor Corporativo',
-    subtitle:'Tu mercado son las empresas. Educación financiera B2B, ticket alto, contratos medianos. Volumen contenido.',
+    subtitle:'Tu mercado son las empresas. Educación financiera B2B, ticket alto, contratos anuales. Pocos cierres grandes.',
     insights:[
       {h:'Tu venta no es el curso, es el contrato anual', t:'Una sola empresa de 200 empleados con un programa anual vale más que 500 personas en un curso. Concentrar fuerza en pocos cierres grandes.'},
       {h:'LinkedIn es tu única red de verdad', t:'Tu cliente decisor vive ahí. Tu Instagram puede ser secundario; lo que importa es contenido B2B serio en LinkedIn.'},
@@ -412,10 +611,10 @@ const ARCHETYPES = {
   },
   mediatico: {
     icon:'📺', name:'El Conferencista Mediático',
-    subtitle:'Quieres alta visibilidad: escenarios grandes, medios masivos, presencia constante. Tu negocio vive de tu cara.',
+    subtitle:'Tu camino es alta visibilidad: escenarios, medios, presencia constante. Tu negocio vive de tu cara.',
     insights:[
       {h:'Tu negocio es tu agenda', t:'Cada conferencia, cada aparición en medios, cada podcast es una transacción. Tu valor sube cuando tu calendario está lleno.'},
-      {h:'El video corto es tu autopista', t:'Reels e YouTube Shorts son tu canal de adquisición principal. Necesitas un sistema de producción semanal sostenible.'},
+      {h:'El video corto es tu autopista', t:'Reels y YouTube Shorts son tu canal de adquisición principal. Necesitas un sistema de producción semanal sostenible.'},
       {h:'Hotmart sí funciona, pero como upsell', t:'La gente que te ve en TV o en un evento luego busca tu curso. Es el embudo natural: visibilidad → curso → comunidad.'}
     ]
   },
@@ -423,14 +622,14 @@ const ARCHETYPES = {
     icon:'🎯', name:'El Mentor Transformador',
     subtitle:'Tu modelo es acompañamiento profundo 1:1 o grupos pequeños. Cambio personal, no contenido masivo.',
     insights:[
-      {h:'Tu propuesta de valor es transformación, no información', t:'No vendes finanzas, vendes "salir de deudas en 12 meses con acompañamiento semanal". La promesa es el resultado, no el contenido.'},
+      {h:'Tu propuesta es transformación, no información', t:'No vendes finanzas, vendes "salir de deudas en 12 meses con acompañamiento semanal". La promesa es el resultado, no el contenido.'},
       {h:'El precio se justifica por el ROI personal', t:'Si tu mentoría le ahorra a alguien $20M en intereses, vale fácil $5M. Tu pricing no se compara con cursos, se compara con resultados.'},
-      {h:'Hotmart es soporte, no producto', t:'El curso es el material de estudio del mentee, pero el corazón del negocio son las sesiones contigo. Modelo: high-touch.'}
+      {h:'Hotmart es soporte, no producto', t:'El curso es el material de estudio del mentee, pero el corazón del negocio son las sesiones contigo. Modelo high-touch.'}
     ]
   },
   emprendedor: {
     icon:'🚀', name:'El Emprendedor Financiero',
-    subtitle:'Quieres construir un producto digital escalable propio (app, plataforma, fintech educativa). Tu marca es soporte del producto.',
+    subtitle:'Tu camino es construir un producto digital escalable propio (app, plataforma). Tu marca es soporte del producto.',
     insights:[
       {h:'Tu marca personal alimenta el producto', t:'Cada contenido tuyo lleva a usuarios al producto. Tú no eres el producto, eres el rostro confiable que respalda la plataforma.'},
       {h:'Hotmart es transitorio', t:'Empiezas ahí, pero tu meta es tener plataforma propia con datos de usuarios, comunidad y posibilidad de levantar capital eventualmente.'},
@@ -440,12 +639,12 @@ const ARCHETYPES = {
 };
 
 // =============================================================
-// PREGUNTAS (18 preguntas, mapean a arquetipos)
-// Cada opción suma puntos a 1-3 arquetipos
+// PREGUNTAS — la mayoría multi-select (max definido por pregunta)
+// Cada pregunta también tiene un 'dim' que mapea a una dimensión de madurez
 // =============================================================
 const QUESTIONS = [
-  // ============ DIMENSIÓN 1: VISIÓN 12-24 MESES ============
-  {dim:'Visión a 12-24 meses', type:'choice', q:'¿Cómo te imaginas posicionado dentro de 2 años?', opts:[
+  // ====== DIM: VISIÓN ======
+  {dim:'Visión a 12-24 meses', dimKey:'vision', type:'multi', max:2, q:'¿Cómo te imaginas posicionado en 24 meses? (selecciona hasta 2 que más resuenen)', opts:[
     {ic:'🎓', t:'Reconocido masivamente por educar — miles de estudiantes en cursos online', s:{maestro:3, mediatico:1}},
     {ic:'🧭', t:'Referente premium de pocos clientes de alto perfil', s:{estratega:3, mentor:1}},
     {ic:'🌐', t:'Líder de una comunidad activa y leal con membresía', s:{comunidad:3}},
@@ -453,131 +652,241 @@ const QUESTIONS = [
     {ic:'💼', t:'Consultor de cabecera para empresas medianas y grandes', s:{consultor:3}},
     {ic:'🚀', t:'Empresario con producto digital propio (app/plataforma) escalable', s:{emprendedor:3}}
   ]},
-  // ============ DIMENSIÓN 2: MODELO MONETIZACIÓN ============
-  {dim:'Modelo de monetización', type:'choice', q:'¿Cuál modelo de ingresos te entusiasma más para los próximos 18 meses?', opts:[
-    {ic:'📦', t:'Cursos online escalables tipo Hotmart — vendo mientras duermo', s:{maestro:3, emprendedor:1}},
+
+  // ====== DIM: MODELO MONETIZACIÓN ======
+  {dim:'Modelo de monetización', dimKey:'modelo', type:'multi', max:3, q:'¿Cuáles modelos de ingresos te entusiasman para los próximos 18 meses? (hasta 3)', opts:[
+    {ic:'📦', t:'Cursos online escalables tipo Hotmart — venta automatizada', s:{maestro:3, emprendedor:1}},
     {ic:'💎', t:'Asesoría 1:1 de alto ticket — pocos clientes, mucho valor', s:{estratega:3, mentor:2}},
     {ic:'🔄', t:'Membresía mensual recurrente — comunidad cerrada', s:{comunidad:3}},
     {ic:'🎤', t:'Conferencias, libros y eventos — autoridad', s:{autor:2, mediatico:3}},
     {ic:'🏢', t:'Contratos B2B con empresas — programas in-house', s:{consultor:3}},
-    {ic:'📱', t:'Producto digital propio (SaaS, app) con suscripción', s:{emprendedor:3}}
+    {ic:'📱', t:'Producto digital propio (SaaS, app) con suscripción', s:{emprendedor:3}},
+    {ic:'🎯', t:'Programas grupales en cohortes (10-30 personas a la vez)', s:{mentor:2, comunidad:2, maestro:1}}
   ]},
-  {dim:'Modelo de monetización', type:'choice', q:'¿Cómo te sientes con la idea de Hotmart como plataforma central?', opts:[
+  {dim:'Modelo de monetización', dimKey:'modelo', type:'choice', q:'¿Cómo te sientes con la idea de Hotmart como plataforma central?', opts:[
     {ic:'🔥', t:'Encaja perfecto — quiero construir todo mi negocio digital ahí', s:{maestro:3, emprendedor:1}},
     {ic:'✅', t:'Sí, pero como puerta de entrada hacia algo más premium después', s:{estratega:2, mentor:2, comunidad:1}},
     {ic:'🤔', t:'Útil para empezar, pero a mediano plazo quiero plataforma propia', s:{emprendedor:3, comunidad:1}},
     {ic:'❌', t:'No es el centro — mi negocio crece más por otras vías (eventos, B2B)', s:{autor:2, mediatico:2, consultor:2}}
   ]},
 
-  // ============ DIMENSIÓN 3: TIEMPO ============
-  {dim:'Disponibilidad de tiempo', type:'choice', q:'¿Cuántas horas A LA SEMANA puedes dedicar TÚ personalmente a tu marca y contenido?', opts:[
+  // ====== DIM: TIEMPO ======
+  {dim:'Disponibilidad de tiempo', dimKey:'tiempo', type:'choice', q:'¿Cuántas horas A LA SEMANA puedes dedicar TÚ personalmente a tu marca y contenido?', opts:[
     {ic:'⏰', t:'Menos de 5 horas — necesito procesos muy automatizados', s:{maestro:2, emprendedor:2, consultor:1}},
     {ic:'⏱️', t:'5 a 10 horas — algo de contenido, decisiones estratégicas', s:{estratega:2, autor:2, consultor:2}},
     {ic:'⏳', t:'10 a 20 horas — soy parte activa del contenido y la comunidad', s:{comunidad:3, mentor:2, mediatico:2}},
     {ic:'🔥', t:'Más de 20 horas — mi marca es prácticamente mi trabajo principal', s:{mediatico:3, comunidad:2, mentor:1}}
   ]},
-  {dim:'Disponibilidad de tiempo', type:'choice', q:'¿Cuántas horas a la semana estás dispuesto a estar en cámara o vivo (Reels, IG Lives, podcast, conferencias)?', opts:[
-    {ic:'📵', t:'Casi nada — prefiero contenido grabado/escrito', s:{autor:3, estratega:1, consultor:2}},
-    {ic:'🎙️', t:'1-2 horas semanales — algo medido', s:{maestro:2, mentor:2, emprendedor:2}},
-    {ic:'📹', t:'3-5 horas — contenido constante', s:{mediatico:2, comunidad:2}},
-    {ic:'🎬', t:'5+ horas — la cámara es parte de mi modelo', s:{mediatico:3, comunidad:1}}
+  {dim:'Disponibilidad de tiempo', dimKey:'tiempo', type:'multi', max:2, q:'¿En qué tipo de actividades estás dispuesto a invertir tu tiempo? (hasta 2)', opts:[
+    {ic:'🎙️', t:'Grabar videos / podcast / Reels regularmente', s:{mediatico:3, maestro:2, comunidad:1}},
+    {ic:'✍️', t:'Escribir contenido (artículos, posts LinkedIn, columnas)', s:{autor:3, estratega:2}},
+    {ic:'💬', t:'Acompañar 1:1 y dar sesiones a clientes', s:{mentor:3, estratega:1}},
+    {ic:'🤝', t:'Reuniones comerciales B2B con empresas', s:{consultor:3}},
+    {ic:'🎤', t:'Dar conferencias y participar en eventos presenciales', s:{mediatico:2, autor:2}},
+    {ic:'📚', t:'Construir y mejorar el contenido del curso', s:{maestro:3, mentor:1}}
   ]},
 
-  // ============ DIMENSIÓN 4: AUDIENCIA OBJETIVO ============
-  {dim:'Audiencia objetivo', type:'choice', q:'¿A quién quieres llegar PRINCIPALMENTE?', opts:[
+  // ====== DIM: AUDIENCIA ======
+  {dim:'Audiencia objetivo', dimKey:'audiencia', type:'multi', max:3, q:'¿A quién quieres llegar PRINCIPALMENTE? (hasta 3 audiencias)', opts:[
     {ic:'👥', t:'Personas naturales con deudas o sin educación financiera', s:{maestro:2, comunidad:2, mediatico:2}},
     {ic:'💼', t:'Profesionales en cargos medios con ingresos por organizar', s:{estratega:2, mentor:3, maestro:1}},
     {ic:'🏪', t:'Emprendedores y dueños de PYME', s:{mentor:2, consultor:2, emprendedor:1}},
     {ic:'🏢', t:'Empresas medianas y grandes (B2B)', s:{consultor:3}},
-    {ic:'🎯', t:'Audiencia masiva, todos los niveles', s:{mediatico:3, maestro:1}}
+    {ic:'🎓', t:'Jóvenes profesionales recién graduados', s:{maestro:2, comunidad:1}},
+    {ic:'👨‍👩‍👧', t:'Familias y parejas en planificación financiera', s:{mentor:2, comunidad:2}},
+    {ic:'💎', t:'Personas con alto patrimonio buscando asesoría', s:{estratega:3, autor:1}}
   ]},
-  {dim:'Audiencia objetivo', type:'choice', q:'¿Qué tan importante es para ti el ticket por cliente vs. el volumen?', opts:[
+  {dim:'Audiencia objetivo', dimKey:'audiencia', type:'choice', q:'¿Qué tan importante es para ti el ticket por cliente vs. el volumen?', opts:[
     {ic:'💎', t:'Mejor pocos clientes pagando mucho — ticket alto', s:{estratega:3, mentor:2, consultor:2}},
     {ic:'⚖️', t:'Balance — ticket medio, volumen medio', s:{maestro:2, comunidad:2}},
     {ic:'📈', t:'Mejor muchos clientes pagando poco — volumen alto', s:{maestro:3, mediatico:2, emprendedor:2}}
   ]},
 
-  // ============ DIMENSIÓN 5: CURSOS ============
-  {dim:'Cursos: presente y futuro', type:'choice', q:'¿Cuál es tu situación actual con tu curso de Transformación Financiera?', opts:[
+  // ====== DIM: CURSOS ======
+  {dim:'Cursos: presente y futuro', dimKey:'cursos', type:'multi', max:2, q:'¿Cuál es tu situación actual con tu curso de Transformación Financiera? (hasta 2)', opts:[
     {ic:'✅', t:'Lo tengo funcionando, quiero mejorarlo y escalarlo en Hotmart', s:{maestro:3, emprendedor:1}},
     {ic:'🔄', t:'Lo tengo, pero quiero rediseñarlo desde cero metodológicamente', s:{maestro:2, mentor:2, comunidad:1}},
     {ic:'🧭', t:'Lo uso como filtro para captar clientes de asesoría 1:1', s:{estratega:3, mentor:2}},
     {ic:'🏢', t:'Quiero adaptarlo para venderlo a empresas (B2B)', s:{consultor:3}},
-    {ic:'🚀', t:'Más que un curso, quiero construir una plataforma/app propia', s:{emprendedor:3}}
+    {ic:'🚀', t:'Quiero construir una plataforma/app propia más allá del curso', s:{emprendedor:3}},
+    {ic:'📚', t:'Quiero crear cursos adicionales (modelo de varios productos)', s:{maestro:2, comunidad:1}}
   ]},
-  {dim:'Cursos: presente y futuro', type:'choice', q:'En 6 meses, ¿cuál es el ideal para tu portafolio de cursos?', opts:[
+  {dim:'Cursos: presente y futuro', dimKey:'cursos', type:'multi', max:2, q:'En 6 meses, ¿cuál sería tu portafolio ideal de cursos? (hasta 2)', opts:[
     {ic:'🎯', t:'Un solo curso insignia muy bien hecho que sea evergreen', s:{maestro:3, estratega:1}},
     {ic:'📚', t:'2-3 cursos en niveles (básico, intermedio, avanzado) — escalera', s:{maestro:2, comunidad:2}},
     {ic:'🏛️', t:'Un programa formal certificado con respaldo institucional', s:{autor:3, consultor:2}},
-    {ic:'💎', t:'Un curso premium + acompañamiento incluido', s:{mentor:3, estratega:2}}
+    {ic:'💎', t:'Un curso premium + acompañamiento incluido', s:{mentor:3, estratega:2}},
+    {ic:'🏢', t:'Una versión corporativa B2B del curso', s:{consultor:3}},
+    {ic:'🌐', t:'Curso + comunidad de práctica continua', s:{comunidad:3, mentor:1}}
   ]},
 
-  // ============ DIMENSIÓN 6: MÉTRICAS A 6 MESES ============
-  {dim:'Métricas objetivo a 6 meses', type:'choice', q:'¿Cuál sería el resultado más importante para ti a 6 meses?', opts:[
+  // ====== DIM: MÉTRICAS ======
+  {dim:'Métricas objetivo a 6 meses', dimKey:'metricas', type:'multi', max:3, q:'¿Cuáles serían los resultados más importantes para ti a 6 meses? (hasta 3)', opts:[
     {ic:'📈', t:'500+ estudiantes pagando en cursos online', s:{maestro:3, emprendedor:1}},
-    {ic:'💎', t:'20-30 clientes 1:1 de alto ticket', s:{estratega:3, mentor:2}},
-    {ic:'🌐', t:'Comunidad de 500-1000 miembros activos pagando', s:{comunidad:3}},
+    {ic:'💎', t:'20-30 clientes 1:1 de alto ticket activos', s:{estratega:3, mentor:2}},
+    {ic:'🌐', t:'Comunidad de 500-1000 miembros activos pagando membresía', s:{comunidad:3}},
     {ic:'🏢', t:'3-5 contratos B2B firmados con empresas', s:{consultor:3}},
     {ic:'📰', t:'Libro publicado + 30+ apariciones en medios', s:{autor:3, mediatico:2}},
-    {ic:'🚀', t:'Producto digital propio lanzado con primeros 200 usuarios', s:{emprendedor:3}}
+    {ic:'🚀', t:'Producto digital propio lanzado con primeros 200 usuarios', s:{emprendedor:3}},
+    {ic:'📱', t:'50.000+ seguidores reales en Instagram/TikTok', s:{mediatico:3, maestro:1}},
+    {ic:'🤝', t:'10.000+ seguidores de calidad en LinkedIn', s:{estratega:2, consultor:2, autor:1}}
   ]},
-  {dim:'Métricas objetivo a 6 meses', type:'choice', q:'¿Cuál es la meta de ingresos MENSUALES sostenibles a 6 meses?', opts:[
+  {dim:'Métricas objetivo a 6 meses', dimKey:'metricas', type:'choice', q:'¿Cuál es tu meta de ingresos MENSUALES sostenibles a 6 meses?', opts:[
     {ic:'💰', t:'$10M-$20M COP mensuales', s:{mentor:2, estratega:1, comunidad:1}},
     {ic:'💵', t:'$20M-$40M COP mensuales', s:{maestro:2, estratega:2, mediatico:1}},
     {ic:'💸', t:'$40M-$80M COP mensuales', s:{maestro:1, comunidad:2, consultor:2, mediatico:2}},
     {ic:'🏦', t:'$80M+ COP mensuales', s:{consultor:2, emprendedor:2, mediatico:2}}
   ]},
 
-  // ============ DIMENSIÓN 7: ÁREAS DE INVERSIÓN ============
-  {dim:'Áreas de inversión prioritarias', type:'multi', q:'De las siguientes áreas, ¿cuáles son tus TOP 3 prioridades de inversión? (selecciona 3)', max:3, opts:[
+  // ====== DIM: INVERSIÓN PRIORITARIA ======
+  {dim:'Áreas de inversión prioritarias', dimKey:'inversion', type:'multi', max:5, q:'De las siguientes áreas, ¿cuáles son tus prioridades de inversión TOP 5? (selecciona 5)', opts:[
     {ic:'🎨', t:'Marca / identidad visual (logo, paleta, sistema gráfico)', s:{estratega:1, autor:1, mediatico:1}, key:'marca'},
     {ic:'🌐', t:'Web / plataforma digital nueva', s:{maestro:1, emprendedor:2, estratega:1}, key:'web'},
     {ic:'📝', t:'Contenido / SEO / posicionamiento orgánico', s:{maestro:2, autor:1, mediatico:1}, key:'contenido'},
     {ic:'💸', t:'Pauta paga / publicidad digital', s:{maestro:1, mediatico:1, emprendedor:1}, key:'pauta'},
     {ic:'🎓', t:'Metodología pedagógica del curso (con experta)', s:{maestro:2, mentor:2, comunidad:1}, key:'metodologia'},
     {ic:'🌐', t:'Comunidad / membresía / plataforma de tribu', s:{comunidad:3}, key:'comunidad'},
-    {ic:'🔄', t:'Embudo de ventas / conversión', s:{maestro:2, emprendedor:2}, key:'embudo'},
-    {ic:'📦', t:'Producción de cursos / setup Hotmart', s:{maestro:2, emprendedor:1}, key:'produccion'},
+    {ic:'🔄', t:'Embudo de ventas / conversión automatizada', s:{maestro:2, emprendedor:2}, key:'embudo'},
+    {ic:'📦', t:'Producción de cursos / setup Hotmart profesional', s:{maestro:2, emprendedor:1}, key:'produccion'},
     {ic:'🎙️', t:'Producción de video / podcast / contenido medios', s:{mediatico:2, comunidad:1}, key:'video'},
     {ic:'🤝', t:'Relacionamiento B2B / ventas corporativas', s:{consultor:3}, key:'b2b'}
   ]},
-  {dim:'Áreas de inversión prioritarias', type:'choice', q:'Si tuvieras que elegir UNA sola palanca para invertir el próximo trimestre, ¿cuál sería?', opts:[
+  {dim:'Áreas de inversión prioritarias', dimKey:'inversion', type:'choice', q:'Si tuvieras que elegir UNA sola palanca para invertir el próximo trimestre, ¿cuál sería?', opts:[
     {ic:'🎓', t:'Rediseñar metodológicamente el curso para que sea referente', s:{maestro:3, mentor:2}},
     {ic:'🌐', t:'Construir una plataforma propia (no depender de Hotmart)', s:{emprendedor:3}},
     {ic:'📝', t:'Producir mucho contenido orgánico para posicionarme', s:{mediatico:2, maestro:2, autor:1}},
     {ic:'💎', t:'Posicionarme como autoridad premium (web alto nivel, prensa)', s:{estratega:3, autor:2}},
-    {ic:'🤝', t:'Salir activamente a vender a empresas', s:{consultor:3}}
+    {ic:'🤝', t:'Salir activamente a vender a empresas', s:{consultor:3}},
+    {ic:'🌐', t:'Construir mi comunidad cerrada de membresía', s:{comunidad:3}}
   ]},
 
-  // ============ DIMENSIÓN 8: ESTILO DE ACOMPAÑAMIENTO ============
-  {dim:'Estilo de acompañamiento preferido', type:'choice', q:'¿Cómo te imaginas trabajando con un equipo externo de marca y metodología?', opts:[
-    {ic:'🧠', t:'Estratégico: me asesoran a alto nivel, yo decido y delego ejecución a mi equipo', s:{estratega:2, autor:2}},
-    {ic:'⚡', t:'Ejecutor: que ejecuten TODO y yo solo valido — yo no tengo tiempo de operar', s:{mediatico:3, emprendedor:2, maestro:1}},
-    {ic:'🤝', t:'Híbrido: construimos juntos, ellos ejecutan, yo aporto contenido y validación', s:{maestro:2, consultor:2, comunidad:2}},
+  // ====== DIM: ACOMPAÑAMIENTO ======
+  {dim:'Estilo de acompañamiento preferido', dimKey:'acompañamiento', type:'multi', max:2, q:'¿Cómo te imaginas trabajando con un equipo externo de marca y metodología? (hasta 2)', opts:[
+    {ic:'🧠', t:'Estratégico: me asesoran y yo decido y delego ejecución a mi equipo', s:{estratega:2, autor:2}},
+    {ic:'⚡', t:'Ejecutor: que ejecuten TODO y yo solo valido — no tengo tiempo de operar', s:{mediatico:3, emprendedor:2, maestro:1}},
+    {ic:'🤝', t:'Híbrido: construimos juntos, ellos ejecutan, yo aporto contenido', s:{maestro:2, consultor:2, comunidad:2}},
     {ic:'💎', t:'Profundo y largo plazo: relación de socios estratégicos, no proveedores', s:{mentor:3, estratega:1, comunidad:1}}
   ]},
-  {dim:'Estilo de acompañamiento preferido', type:'choice', q:'¿Qué frecuencia de contacto contigo es ideal para el equipo?', opts:[
+  {dim:'Estilo de acompañamiento preferido', dimKey:'acompañamiento', type:'choice', q:'¿Qué frecuencia de contacto contigo es ideal para el equipo?', opts:[
     {ic:'📅', t:'1 sesión mensual estratégica de 90 min — el resto avanza autónomo', s:{estratega:2, autor:2, mediatico:2}},
     {ic:'📆', t:'2 sesiones mensuales (estratégica + táctica)', s:{maestro:2, consultor:2, emprendedor:1}},
     {ic:'🗓️', t:'1 sesión semanal de 60 min', s:{mentor:2, comunidad:2, emprendedor:2}},
     {ic:'💬', t:'Contacto diario por WhatsApp + sesiones puntuales', s:{mediatico:3, emprendedor:2}}
   ]},
 
-  // ============ ABIERTAS CONTEXTUALES ============
-  {dim:'Contexto adicional', type:'text', q:'En tus propias palabras, ¿cuál es tu visión a 24 meses? (Lo más concreta posible)', placeholder:'Ej: "Quiero ser el referente #1 en finanzas personales en Colombia con un curso insignia, una comunidad activa y conferencias internacionales..."', s:{}},
-  {dim:'Contexto adicional', type:'text', q:'¿Qué es lo que MÁS te frustra hoy de tu situación digital actual?', placeholder:'Ej: "Que invierto tiempo en contenido y no convierto", "Que se ve poco profesional", "Que dependo 100% del boca a boca"...', s:{}},
-  {dim:'Contexto adicional', type:'text', q:'¿Hay algo importante que NO te hayamos preguntado y que deberíamos saber?', placeholder:'Cualquier contexto que ayude a Nathalia y Jorge a entenderte mejor antes de armar la propuesta...', s:{}}
+  // ====== DIM: POSICIONAMIENTO COMPETITIVO ======
+  {dim:'Posicionamiento competitivo', dimKey:'vision', type:'multi', max:3, q:'¿Quiénes son tus 3 principales referentes/competidores percibidos en Colombia o LATAM? (hasta 3)', opts:[
+    {ic:'💼', t:'Juan Diego Gómez (Invertir Mejor)', s:{maestro:2, mediatico:2}},
+    {ic:'📚', t:'Andrés Gutiérrez (Andres Gutierrez Show)', s:{maestro:2, mediatico:1}},
+    {ic:'🎓', t:'Sofía Macías (Pequeño Cerdo Capitalista)', s:{autor:3, maestro:1}},
+    {ic:'💎', t:'Asesores premium boutique (poca exposición pública)', s:{estratega:3, mentor:1}},
+    {ic:'🌐', t:'Comunidades cerradas tipo Club de Inversionistas', s:{comunidad:3}},
+    {ic:'🏢', t:'Firmas consultoras (Old Mutual, Skandia, similares)', s:{consultor:2, estratega:1}},
+    {ic:'🚀', t:'Fintechs educativas (Tributi, Goldwin, similares)', s:{emprendedor:3}},
+    {ic:'📺', t:'Influencers financieros nuevos (TikTok, Reels)', s:{mediatico:3}}
+  ]},
+  {dim:'Posicionamiento competitivo', dimKey:'vision', type:'choice', q:'¿En qué SE DIFERENCIA REALMENTE tu propuesta de los demás?', opts:[
+    {ic:'🎓', t:'En la profundidad académica y rigor financiero (Javeriana, Portafolio)', s:{autor:3, estratega:2}},
+    {ic:'❤️', t:'En la cercanía y acompañamiento personal real', s:{mentor:3, comunidad:1}},
+    {ic:'🔄', t:'En el método pedagógico paso a paso replicable', s:{maestro:3}},
+    {ic:'🏢', t:'En la experiencia corporativa y B2B', s:{consultor:3}},
+    {ic:'📊', t:'En herramientas y simuladores prácticos propios', s:{emprendedor:3, maestro:1}},
+    {ic:'🎤', t:'En la capacidad de comunicar de manera entendible y atractiva', s:{mediatico:3, autor:1}}
+  ]},
+
+  // ====== DIM: EQUIPO Y OPERACIÓN ACTUAL ======
+  {dim:'Equipo y operación', dimKey:'tiempo', type:'choice', q:'¿Cuántas personas trabajan contigo hoy de manera estable?', opts:[
+    {ic:'🧍', t:'Solo yo — todo lo hago yo mismo', s:{mentor:2, estratega:1}},
+    {ic:'👥', t:'1-2 personas (asistente, freelance ocasional)', s:{maestro:1, mentor:1}},
+    {ic:'👨‍👩‍👧', t:'3-5 personas (equipo pequeño consolidado)', s:{consultor:2, maestro:2}},
+    {ic:'🏢', t:'6+ personas (equipo formal con áreas)', s:{consultor:2, emprendedor:2}}
+  ]},
+  {dim:'Equipo y operación', dimKey:'acompañamiento', type:'multi', max:3, q:'¿Qué roles necesitas/quieres incorporar en los próximos 6 meses? (hasta 3)', opts:[
+    {ic:'✍️', t:'Community Manager / contenido en redes', s:{maestro:1, mediatico:2, comunidad:1}},
+    {ic:'🎨', t:'Diseñador gráfico / multimedia', s:{mediatico:2, comunidad:1}},
+    {ic:'📊', t:'Asistente operativo / administrativa', s:{mentor:1, estratega:1}},
+    {ic:'💼', t:'Comercial / SDR para captar empresas', s:{consultor:3}},
+    {ic:'🎓', t:'Diseñador instruccional / metodóloga', s:{maestro:2, mentor:1, comunidad:1}},
+    {ic:'💻', t:'Desarrollador web / plataforma', s:{emprendedor:3}},
+    {ic:'🎬', t:'Editor de video / productor', s:{mediatico:3}},
+    {ic:'🤝', t:'Customer success / acompañamiento a estudiantes', s:{maestro:2, comunidad:2, mentor:1}}
+  ]},
+
+  // ====== DIM: MENTALIDAD Y RIESGO ======
+  {dim:'Mentalidad y riesgo', dimKey:'vision', type:'choice', q:'¿Cuál es tu tolerancia al riesgo de experimentación en los próximos 6 meses?', opts:[
+    {ic:'🛡️', t:'Conservadora — prefiero apostar a lo seguro y probado', s:{autor:2, estratega:2}},
+    {ic:'⚖️', t:'Moderada — pruebo cosas, pero con métricas claras', s:{maestro:2, consultor:2}},
+    {ic:'🚀', t:'Alta — estoy dispuesto a apostar fuerte en una sola dirección', s:{emprendedor:3, mediatico:2}},
+    {ic:'🌪️', t:'Muy alta — quiero romper esquemas y disruptir mi mercado', s:{emprendedor:3, mediatico:1}}
+  ]},
+  {dim:'Mentalidad y riesgo', dimKey:'metricas', type:'choice', q:'¿Cuándo esperas razonablemente que la inversión se devuelva (break-even)?', opts:[
+    {ic:'⚡', t:'En 3 meses — necesito retorno rápido', s:{maestro:2, mediatico:2}},
+    {ic:'⏱️', t:'En 6 meses — retorno medio', s:{maestro:1, estratega:2, mentor:2}},
+    {ic:'📅', t:'En 12 meses — inversión a mediano plazo', s:{comunidad:2, consultor:2, autor:1}},
+    {ic:'🏛️', t:'En 18-24 meses — inversión estructural de marca', s:{autor:3, emprendedor:2}}
+  ]},
+  {dim:'Mentalidad y riesgo', dimKey:'acompañamiento', type:'choice', q:'Si los datos a 3 meses dicen "cambia de camino", ¿qué tan dispuesto estás a pivotar?', opts:[
+    {ic:'🛤️', t:'Difícil — prefiero terminar lo que empezamos antes de cambiar', s:{autor:2, estratega:1}},
+    {ic:'🤔', t:'Lo evalúo, pero con cautela y mucha conversación', s:{maestro:2, consultor:2, mentor:2}},
+    {ic:'✅', t:'Sí, si los datos lo justifican, pivoto sin drama', s:{emprendedor:3, mediatico:2}},
+    {ic:'🔄', t:'Agresivamente — prefiero pivotar 3 veces antes que insistir en lo que no funciona', s:{emprendedor:3}}
+  ]},
+
+  // ====== DIM: PRECIO Y PROPUESTA DE VALOR ======
+  {dim:'Precio y propuesta de valor', dimKey:'modelo', type:'choice', q:'Hoy tu curso vale $3.300.000 COP. ¿Cuál es tu sensación sobre ese precio?', opts:[
+    {ic:'💎', t:'Está bien, incluso podría subir si fortalecemos la propuesta', s:{estratega:3, mentor:2}},
+    {ic:'✅', t:'Está bien para el valor que entrego', s:{maestro:2, mentor:1}},
+    {ic:'🤔', t:'Quizás está alto y debería bajar para vender más volumen', s:{maestro:2, mediatico:2, emprendedor:1}},
+    {ic:'📊', t:'Quiero ofrecer varios niveles de precio (escalera)', s:{maestro:2, comunidad:2}}
+  ]},
+  {dim:'Precio y propuesta de valor', dimKey:'metricas', type:'choice', q:'¿Cuál es la promesa medible que le das al estudiante de tu curso?', opts:[
+    {ic:'💰', t:'Saldrá de deudas en X meses', s:{mentor:3, maestro:2}},
+    {ic:'📈', t:'Tendrá un plan financiero personal claro', s:{maestro:2, mentor:2}},
+    {ic:'🎯', t:'Aprenderá a invertir con criterio', s:{estratega:2, maestro:1, autor:1}},
+    {ic:'🧠', t:'Cambiará su mentalidad sobre el dinero', s:{mentor:2, autor:2, mediatico:1}},
+    {ic:'🤷', t:'No tengo una promesa medible clara todavía', s:{}}
+  ]},
+
+  // ====== DIM: GEOGRAFÍA Y ESCALA ======
+  {dim:'Geografía y escala', dimKey:'audiencia', type:'multi', max:3, q:'¿En qué mercados geográficos quieres operar? (hasta 3)', opts:[
+    {ic:'🇨🇴', t:'Colombia (mercado local consolidado)', s:{}},
+    {ic:'🌎', t:'LATAM hispanohablante (México, Perú, Chile, Argentina)', s:{maestro:2, mediatico:2}},
+    {ic:'🇺🇸', t:'Hispanos en USA', s:{maestro:2, mediatico:2}},
+    {ic:'🇪🇸', t:'España', s:{maestro:1, autor:1}},
+    {ic:'🌍', t:'Mercado global hispanohablante', s:{maestro:2, mediatico:2, emprendedor:2}}
+  ]},
+
+  // ====== DIM: CONTENIDO Y CANALES ======
+  {dim:'Contenido y canales', dimKey:'inversion', type:'multi', max:4, q:'¿En qué canales quieres construir presencia activa? (hasta 4)', opts:[
+    {ic:'💼', t:'LinkedIn', s:{estratega:2, consultor:3, autor:1}},
+    {ic:'📸', t:'Instagram', s:{mediatico:2, comunidad:1, maestro:1}},
+    {ic:'🎵', t:'TikTok', s:{mediatico:3}},
+    {ic:'📺', t:'YouTube (videos largos)', s:{maestro:3, autor:2}},
+    {ic:'🎙️', t:'Podcast propio', s:{autor:3, mediatico:2}},
+    {ic:'📰', t:'Columnas en medios (Portafolio, La República)', s:{autor:3}},
+    {ic:'📧', t:'Newsletter por email', s:{estratega:2, comunidad:2, maestro:1}},
+    {ic:'🌐', t:'Blog propio en mi web', s:{maestro:2, autor:1}}
+  ]},
+  {dim:'Contenido y canales', dimKey:'cursos', type:'choice', q:'¿Cuál es la duración ideal de tu curso insignia?', opts:[
+    {ic:'⚡', t:'Curso corto: 4-6 semanas', s:{maestro:3, mediatico:1}},
+    {ic:'📅', t:'Programa medio: 8-12 semanas', s:{maestro:2, mentor:1}},
+    {ic:'🏛️', t:'Programa largo: 16-24 semanas (con respaldo institucional)', s:{autor:3, consultor:2}},
+    {ic:'🔄', t:'Sin duración fija — autoadministrado (evergreen)', s:{maestro:3, emprendedor:1}}
+  ]},
+
+  // ====== CONTEXTUALES (preguntas abiertas) ======
+  {dim:'Contexto adicional', dimKey:'vision', type:'text', q:'En tus propias palabras, ¿cuál es tu visión a 24 meses? (lo más concreta posible — número de clientes, ingresos, posicionamiento)', placeholder:'Ej: "Quiero ser el referente #1 en finanzas personales en Colombia con un curso insignia, una comunidad activa de 1000 personas pagando $100k/mes, y conferencias internacionales 3-4 veces al año..."'},
+  {dim:'Contexto adicional', dimKey:'vision', type:'text', q:'¿Cuál es tu HITO específico a 6 meses? (algo concreto que si logras, sabes que el acompañamiento funcionó)', placeholder:'Ej: "Tener 200 estudiantes activos en mi curso", "Cerrar 3 contratos con empresas", "Lanzar mi comunidad con 100 miembros pagando"...'},
+  {dim:'Contexto adicional', dimKey:'inversion', type:'text', q:'¿Qué es lo que MÁS te frustra hoy de tu situación digital actual?', placeholder:'Ej: "Que invierto tiempo en contenido y no convierto", "Que se ve poco profesional", "Que dependo 100% del boca a boca"...'},
+  {dim:'Contexto adicional', dimKey:'metricas', type:'text', q:'¿Cuál es tu mayor logro profesional hasta hoy? (el que más orgullo te genera)', placeholder:'El logro que más sientes que define quién eres profesionalmente...'},
+  {dim:'Contexto adicional', dimKey:'acompañamiento', type:'text', q:'¿Qué es lo que MÁS te genera dudas o resistencia sobre un acompañamiento de 6 meses?', placeholder:'Honesto — qué te frena, qué te da miedo, qué te incomoda de la idea. Esto nos ayuda a diseñar mejor la propuesta...'},
+  {dim:'Contexto adicional', dimKey:'acompañamiento', type:'text', q:'¿Hay algo importante que NO te hayamos preguntado y que deberíamos saber?', placeholder:'Cualquier contexto que ayude a Nathalia y Jorge a entenderte mejor antes de armar la propuesta...'}
 ];
 
 // =============================================================
 // STATE
 // =============================================================
-let state = {
-  current: 0,
-  answers: {},   // {questionIdx: {value, score}}
-  multiSel: {},  // {questionIdx: [keys]}
-  user: {}
-};
+let state = { current: 0, answers: {}, user: {} };
 
 // =============================================================
 // ROUTING
@@ -588,11 +897,8 @@ function getView(){
   if(q.includes('dashboard')) return 'dashboard';
   return 'form';
 }
-
 function showView(name){
-  document.getElementById('view-form').classList.add('hidden');
-  document.getElementById('view-admin').classList.add('hidden');
-  document.getElementById('view-dashboard').classList.add('hidden');
+  ['form','admin','dashboard'].forEach(v => document.getElementById('view-'+v).classList.add('hidden'));
   document.getElementById('view-'+name).classList.remove('hidden');
   const bm = document.getElementById('brand-mode');
   if(name==='admin') bm.textContent = '🔐 Panel de administración';
@@ -603,559 +909,14 @@ function showView(name){
 // =============================================================
 // FORM LOGIC
 // =============================================================
+function gotoIntro(){
+  document.getElementById('screen-context').classList.add('hidden');
+  document.getElementById('screen-intro').classList.remove('hidden');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
 function startForm(){
   const name = document.getElementById('f-name').value.trim();
   const email = document.getElementById('f-email').value.trim();
   if(!name || !email){
-    alert('Por favor completa tu nombre y correo.');
-    return;
-  }
-  state.user = {name, email, started_at: new Date().toISOString()};
-  document.getElementById('screen-intro').classList.add('hidden');
-  document.getElementById('screen-questions').classList.remove('hidden');
-  state.current = 0;
-  renderQuestion();
-}
-
-function renderQuestion(){
-  const i = state.current;
-  const q = QUESTIONS[i];
-  const total = QUESTIONS.length;
-  document.getElementById('prog-bar').style.width = ((i+1)/total*100)+'%';
-  document.getElementById('prog-current').textContent = `Pregunta ${i+1}`;
-  document.getElementById('prog-total').textContent = `de ${total}`;
-  document.getElementById('btn-prev').disabled = (i===0);
-  document.getElementById('btn-next').textContent = (i===total-1) ? 'Ver mi arquetipo →' : 'Siguiente →';
-
-  let html = `<span class="dim-tag">${q.dim}</span><h2>${q.q}</h2>`;
-
-  if(q.type === 'choice'){
-    html += '<div class="options" style="margin-top:18px">';
-    q.opts.forEach((o, idx) => {
-      const sel = (state.answers[i] && state.answers[i].idx === idx) ? 'selected' : '';
-      html += `<button class="opt ${sel}" data-idx="${idx}" type="button">
-        <span class="opt-ic">${o.ic}</span>
-        <span class="opt-txt">${o.t}</span>
-      </button>`;
-    });
-    html += '</div>';
-  } else if(q.type === 'multi'){
-    const sel = state.multiSel[i] || [];
-    html += `<p style="color:var(--muted);font-size:.9rem;margin:8px 0 16px">Selecciona hasta ${q.max} opciones.</p>`;
-    html += '<div class="checkbox-grid" style="margin-top:8px">';
-    q.opts.forEach((o, idx) => {
-      const isSel = sel.includes(idx);
-      html += `<div class="check ${isSel?'selected':''}" data-idx="${idx}">
-        <div class="ck-mark"></div>
-        <div><strong>${o.ic}</strong> ${o.t}</div>
-      </div>`;
-    });
-    html += '</div>';
-  } else if(q.type === 'text'){
-    const v = (state.answers[i] && state.answers[i].text) || '';
-    html += `<textarea id="q-text" placeholder="${q.placeholder}" style="min-height:140px;margin-top:14px">${v}</textarea>`;
-  }
-
-  document.getElementById('question-card').innerHTML = html;
-
-  // Bind handlers
-  if(q.type === 'choice'){
-    document.querySelectorAll('#question-card .opt').forEach(el => {
-      el.addEventListener('click', () => {
-        const idx = +el.dataset.idx;
-        state.answers[i] = { idx, value: q.opts[idx].t, score: q.opts[idx].s };
-        document.querySelectorAll('#question-card .opt').forEach(x => x.classList.remove('selected'));
-        el.classList.add('selected');
-      });
-    });
-  } else if(q.type === 'multi'){
-    document.querySelectorAll('#question-card .check').forEach(el => {
-      el.addEventListener('click', () => {
-        const idx = +el.dataset.idx;
-        let cur = state.multiSel[i] || [];
-        if(cur.includes(idx)){
-          cur = cur.filter(x => x !== idx);
-        } else {
-          if(cur.length >= q.max){
-            alert(`Solo puedes seleccionar ${q.max} opciones. Deselecciona alguna primero.`);
-            return;
-          }
-          cur.push(idx);
-        }
-        state.multiSel[i] = cur;
-        // Build aggregated score
-        const agg = {};
-        const keys = [];
-        cur.forEach(ix => {
-          const opt = q.opts[ix];
-          keys.push(opt.key || opt.t);
-          Object.keys(opt.s).forEach(k => agg[k] = (agg[k]||0) + opt.s[k]);
-        });
-        state.answers[i] = { idxs: cur, value: keys.join(', '), score: agg };
-        renderQuestion();
-      });
-    });
-  }
-}
-
-function nextQuestion(){
-  const i = state.current;
-  const q = QUESTIONS[i];
-  // Capture text
-  if(q.type === 'text'){
-    const txt = document.getElementById('q-text').value.trim();
-    state.answers[i] = { text: txt, value: txt, score: {} };
-  } else {
-    if(!state.answers[i]){
-      alert('Selecciona una opción antes de continuar.');
-      return;
-    }
-  }
-
-  if(i === QUESTIONS.length - 1){
-    submitAnswers();
-  } else {
-    state.current++;
-    renderQuestion();
-  }
-}
-
-function prevQuestion(){
-  if(state.current > 0){
-    state.current--;
-    renderQuestion();
-  }
-}
-
-// =============================================================
-// SCORING / ARQUETIPO
-// =============================================================
-function computeArchetype(){
-  const scores = {};
-  Object.keys(ARCHETYPES).forEach(k => scores[k] = 0);
-  Object.values(state.answers).forEach(a => {
-    if(a.score){
-      Object.keys(a.score).forEach(k => scores[k] += a.score[k]);
-    }
-  });
-  // Sort
-  const ordered = Object.entries(scores).sort((a,b) => b[1]-a[1]);
-  return { winner: ordered[0][0], scores, ordered };
-}
-
-// =============================================================
-// SUBMIT
-// =============================================================
-async function submitAnswers(){
-  document.getElementById('screen-questions').classList.add('hidden');
-  document.getElementById('screen-saving').classList.remove('hidden');
-
-  const result = computeArchetype();
-  const payload = {
-    user: state.user,
-    submitted_at: new Date().toISOString(),
-    answers: QUESTIONS.map((q, i) => ({
-      dim: q.dim,
-      q: q.q,
-      type: q.type,
-      value: state.answers[i] ? state.answers[i].value : null,
-      score: state.answers[i] ? state.answers[i].score : null
-    })),
-    scores: result.scores,
-    winner: result.winner
-  };
-
-  // Send to GitHub Issues
-  try {
-    await saveToGitHub(payload);
-  } catch(e){
-    console.error('Save error:', e);
-  }
-
-  // Show result
-  setTimeout(() => {
-    document.getElementById('screen-saving').classList.add('hidden');
-    showResult(result);
-  }, 1500);
-}
-
-async function saveToGitHub(payload){
-  const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/issues`;
-  const body = {
-    title: `Diagnóstico — ${payload.user.name} — ${payload.winner}`,
-    body: '```json\n' + JSON.stringify(payload, null, 2) + '\n```',
-    labels: ['diagnostic']
-  };
-  const r = await fetch(url, {
-    method: 'POST',
-    headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  if(!r.ok) throw new Error('GitHub error: ' + r.status);
-  return r.json();
-}
-
-// =============================================================
-// RESULT
-// =============================================================
-function showResult(result){
-  document.getElementById('screen-result').classList.remove('hidden');
-  const arc = ARCHETYPES[result.winner];
-  document.getElementById('r-icon').textContent = arc.icon;
-  document.getElementById('r-name').textContent = arc.name;
-  document.getElementById('r-subtitle').textContent = arc.subtitle;
-
-  // Insights
-  const insightsHTML = arc.insights.map(i => `
-    <div class="insight">
-      <h4>${i.h}</h4>
-      <p>${i.t}</p>
-    </div>
-  `).join('');
-  document.getElementById('r-insights').innerHTML = insightsHTML;
-
-  // Archetypes mapping
-  const grid = document.getElementById('r-archetypes-grid');
-  grid.innerHTML = result.ordered.map(([k, score]) => {
-    const a = ARCHETYPES[k];
-    const isWin = (k === result.winner);
-    return `<div class="archetype-card" style="${isWin?'border-color:var(--cyan);background:rgba(0,212,255,.08)':''}">
-      <div class="ic">${a.icon}</div>
-      <div class="nm">${a.name.replace('El ','')}</div>
-      <div class="sc">${score} pts</div>
-    </div>`;
-  }).join('');
-}
-
-// =============================================================
-// ADMIN PANEL
-// =============================================================
-let adminData = [];
-
-function adminLogin(){
-  const pass = document.getElementById('adm-pass').value;
-  if(pass === ADMIN_PASS){
-    document.getElementById('admin-login').classList.add('hidden');
-    document.getElementById('admin-panel').classList.remove('hidden');
-    loadResponses();
-  } else {
-    document.getElementById('adm-login-err').classList.remove('hidden');
-  }
-}
-
-async function loadResponses(){
-  const status = document.getElementById('adm-status');
-  status.className = 'notice info';
-  status.innerHTML = '<span class="spinner"></span> Cargando respuestas desde GitHub...';
-  try {
-    const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/issues?state=open&labels=diagnostic&per_page=100`;
-    const r = await fetch(url, { headers: { 'Authorization': 'token ' + TOKEN } });
-    if(!r.ok) throw new Error(r.status);
-    const issues = await r.json();
-    adminData = issues.map(iss => {
-      try {
-        const match = iss.body.match(/```json\n([\s\S]*?)\n```/);
-        if(!match) return null;
-        const data = JSON.parse(match[1]);
-        data._issue = iss.number;
-        data._created = iss.created_at;
-        return data;
-      } catch(e){ return null; }
-    }).filter(Boolean);
-    renderAdmin();
-    status.className = 'notice ok';
-    status.textContent = `✓ ${adminData.length} respuesta${adminData.length===1?'':'s'} cargada${adminData.length===1?'':'s'}`;
-    setTimeout(() => status.classList.add('hidden'), 2500);
-  } catch(e){
-    status.className = 'notice err';
-    status.textContent = '❌ Error cargando: ' + e.message + ' — revisa el token o la conexión';
-  }
-}
-
-function renderAdmin(){
-  document.getElementById('kpi-total').textContent = adminData.length;
-  if(adminData.length === 0){
-    document.getElementById('kpi-archetype').textContent = '—';
-    document.getElementById('kpi-completion').textContent = '0%';
-    document.getElementById('kpi-last').textContent = '—';
-    document.querySelector('#adm-table tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:30px">Aún no hay respuestas</td></tr>';
-    return;
-  }
-  // Dominant archetype
-  const counts = {};
-  adminData.forEach(d => counts[d.winner] = (counts[d.winner]||0)+1);
-  const dom = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
-  document.getElementById('kpi-archetype').textContent = ARCHETYPES[dom[0]] ? ARCHETYPES[dom[0]].icon + ' ' + ARCHETYPES[dom[0]].name.replace('El ','') : dom[0];
-  // Completion
-  const avg = adminData.reduce((s,d) => s + d.answers.filter(a=>a.value).length / QUESTIONS.length, 0) / adminData.length;
-  document.getElementById('kpi-completion').textContent = Math.round(avg*100) + '%';
-  // Last
-  const last = adminData.sort((a,b) => new Date(b.submitted_at) - new Date(a.submitted_at))[0];
-  document.getElementById('kpi-last').textContent = new Date(last.submitted_at).toLocaleString('es-CO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
-
-  // Table
-  const rows = adminData.map((d, i) => {
-    const arc = ARCHETYPES[d.winner];
-    const date = new Date(d.submitted_at).toLocaleString('es-CO', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
-    return `<tr>
-      <td>${date}</td>
-      <td>${d.user.name}</td>
-      <td>${d.user.email}</td>
-      <td>${arc ? arc.icon + ' ' + arc.name.replace('El ','') : d.winner}</td>
-      <td><button class="btn btn-ghost" style="padding:6px 14px;font-size:.8rem" onclick="showDetail(${i})">Ver detalle →</button></td>
-    </tr>`;
-  }).join('');
-  document.querySelector('#adm-table tbody').innerHTML = rows;
-}
-
-window.showDetail = function(i){
-  const d = adminData[i];
-  const arc = ARCHETYPES[d.winner];
-  document.getElementById('adm-detail-card').style.display = 'block';
-  document.getElementById('adm-detail-name').textContent = `${d.user.name} — ${arc ? arc.name : d.winner}`;
-  let html = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px">`;
-  html += `<div class="kpi"><div class="v" style="font-size:1.3rem">${arc?arc.icon:'❓'}</div><div class="l">${arc?arc.name:'-'}</div></div>`;
-  Object.entries(d.scores).sort((a,b)=>b[1]-a[1]).slice(0,3).forEach(([k,v]) => {
-    const a = ARCHETYPES[k];
-    html += `<div class="kpi"><div class="v" style="font-size:1.3rem">${v} pts</div><div class="l">${a?a.name.replace('El ',''):k}</div></div>`;
-  });
-  html += `</div>`;
-  // Answers grouped by dimension
-  const byDim = {};
-  d.answers.forEach(a => {
-    if(!byDim[a.dim]) byDim[a.dim] = [];
-    byDim[a.dim].push(a);
-  });
-  Object.entries(byDim).forEach(([dim, ans]) => {
-    html += `<div class="card" style="margin-bottom:14px;padding:18px"><h3 style="color:var(--cyan);font-size:1rem;margin-bottom:10px">${dim}</h3>`;
-    ans.forEach(a => {
-      html += `<div style="margin-bottom:12px"><p style="font-size:.85rem;color:var(--muted);margin-bottom:4px">${a.q}</p><p style="font-size:.95rem">→ ${a.value || '<em style="color:var(--muted)">(sin responder)</em>'}</p></div>`;
-    });
-    html += `</div>`;
-  });
-  document.getElementById('adm-detail-body').innerHTML = html;
-  document.getElementById('adm-detail-card').scrollIntoView({behavior:'smooth'});
-};
-
-function exportExcel(){
-  if(!adminData.length){ alert('No hay datos para exportar.'); return; }
-  const wb = XLSX.utils.book_new();
-  // Hoja resumen
-  const summary = adminData.map(d => ({
-    Fecha: new Date(d.submitted_at).toLocaleString('es-CO'),
-    Nombre: d.user.name,
-    Email: d.user.email,
-    Arquetipo: ARCHETYPES[d.winner] ? ARCHETYPES[d.winner].name : d.winner,
-    ...d.scores
-  }));
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summary), 'Resumen');
-  // Hoja detalle
-  const detail = [];
-  adminData.forEach(d => {
-    d.answers.forEach(a => {
-      detail.push({
-        Persona: d.user.name,
-        Fecha: new Date(d.submitted_at).toLocaleString('es-CO'),
-        Dimensión: a.dim,
-        Pregunta: a.q,
-        Respuesta: a.value || ''
-      });
-    });
-  });
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(detail), 'Detalle');
-  XLSX.writeFile(wb, `diagnostico-david-aponte-${new Date().toISOString().slice(0,10)}.xlsx`);
-}
-
-// =============================================================
-// DASHBOARD
-// =============================================================
-async function loadDashboard(){
-  const status = document.getElementById('dash-status');
-  status.className = 'notice info';
-  status.innerHTML = '<span class="spinner"></span> Cargando datos...';
-  try {
-    const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/issues?state=open&labels=diagnostic&per_page=100`;
-    const r = await fetch(url, { headers: { 'Authorization': 'token ' + TOKEN } });
-    if(!r.ok) throw new Error(r.status);
-    const issues = await r.json();
-    adminData = issues.map(iss => {
-      try {
-        const match = iss.body.match(/```json\n([\s\S]*?)\n```/);
-        return match ? JSON.parse(match[1]) : null;
-      } catch(e){ return null; }
-    }).filter(Boolean);
-
-    if(adminData.length === 0){
-      status.className = 'notice info';
-      status.textContent = 'Aún no hay respuestas. Cuando David complete el diagnóstico, los datos aparecerán aquí.';
-      return;
-    }
-    status.classList.add('hidden');
-    renderDashboard();
-  } catch(e){
-    status.className = 'notice err';
-    status.textContent = '❌ Error: ' + e.message;
-  }
-}
-
-function renderDashboard(){
-  const d = adminData[adminData.length - 1]; // último
-
-  // Gráfica de arquetipos
-  const labels = Object.keys(ARCHETYPES).map(k => ARCHETYPES[k].icon + ' ' + ARCHETYPES[k].name.replace('El ',''));
-  const data = Object.keys(ARCHETYPES).map(k => d.scores[k] || 0);
-  if(window._chArc) window._chArc.destroy();
-  window._chArc = new Chart(document.getElementById('ch-archetypes'), {
-    type:'bar', data:{labels, datasets:[{label:'Puntaje', data, backgroundColor:'rgba(0,212,255,0.6)', borderColor:'#00d4ff', borderWidth:2}]},
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{ticks:{color:'#fff'},grid:{color:'rgba(255,255,255,.08)'}},y:{ticks:{color:'#fff'},grid:{color:'rgba(255,255,255,.05)'}}}}
-  });
-
-  // Tiempo vs ambición (gráfico burbuja simplificado)
-  if(window._chTA) window._chTA.destroy();
-  window._chTA = new Chart(document.getElementById('ch-time-amb'), {
-    type:'radar',
-    data:{labels:['Tiempo personal','Ambición monetaria','Profundidad cliente','Escala digital','Autoridad mediática'],
-      datasets:[{label:d.user.name, data:[
-        normalizeTimeScore(d), normalizeAmbitionScore(d), normalizeDepthScore(d), normalizeScaleScore(d), normalizeMediaScore(d)
-      ], backgroundColor:'rgba(123,47,255,0.15)',borderColor:'#7b2fff',borderWidth:2,pointBackgroundColor:'#7b2fff'}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#fff'}}},
-      scales:{r:{angleLines:{color:'rgba(255,255,255,.1)'},grid:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#fff',font:{size:11}},ticks:{color:'rgba(255,255,255,.5)',backdropColor:'transparent'},min:0,max:5}}}
-  });
-
-  // Prioridades
-  const priorityAns = d.answers.find(a => a.q.includes('TOP 3 prioridades'));
-  if(priorityAns){
-    const items = (priorityAns.value || '').split(', ').filter(Boolean);
-    const counts = items.map(it => ({label: it, count: 1}));
-    if(window._chPri) window._chPri.destroy();
-    window._chPri = new Chart(document.getElementById('ch-priorities'), {
-      type:'bar', data:{labels: counts.map(c=>c.label), datasets:[{label:'Prioridad', data: counts.map((c,i)=>3-i), backgroundColor:['#00d4ff','#7b2fff','#ff8c00']}]},
-      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-        scales:{x:{ticks:{color:'#fff'},grid:{color:'rgba(255,255,255,.08)'}},y:{ticks:{color:'#fff'},grid:{color:'rgba(255,255,255,.05)'}}}}
-    });
-  }
-
-  // Proposal body
-  const arc = ARCHETYPES[d.winner];
-  let prop = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px">
-    <div class="kpi"><div class="v" style="font-size:1.5rem">${arc.icon}</div><div class="l">Arquetipo</div><div style="margin-top:6px;font-weight:700">${arc.name}</div></div>
-    <div class="kpi"><div class="v" style="font-size:1.2rem">${getDimensionAnswer(d,'tiempo')}</div><div class="l">Tiempo disponible</div></div>
-    <div class="kpi"><div class="v" style="font-size:1.2rem">${getDimensionAnswer(d,'ingresos')}</div><div class="l">Meta de ingresos</div></div>
-  </div>`;
-  prop += `<h4 style="color:var(--cyan);margin-bottom:12px">💡 Recomendaciones del acompañamiento</h4>`;
-  arc.insights.forEach(i => {
-    prop += `<div class="insight"><h4>${i.h}</h4><p>${i.t}</p></div>`;
-  });
-  prop += `<h4 style="color:var(--cyan);margin:24px 0 12px">🎯 Áreas prioritarias identificadas</h4>`;
-  prop += `<p>${priorityAns ? priorityAns.value : '(no respondió)'}</p>`;
-
-  prop += `<h4 style="color:var(--cyan);margin:24px 0 12px">📝 Respuestas abiertas de David</h4>`;
-  d.answers.filter(a => a.type === 'text' && a.value).forEach(a => {
-    prop += `<div class="insight"><h4>${a.q}</h4><p>"${a.value}"</p></div>`;
-  });
-
-  document.getElementById('dash-proposal-body').innerHTML = prop;
-}
-
-function getDimensionAnswer(d, key){
-  const map = {
-    'tiempo':'A LA SEMANA',
-    'ingresos':'ingresos MENSUALES'
-  };
-  const ans = d.answers.find(a => a.q.includes(map[key]));
-  return ans ? (ans.value || '—').substring(0,40) : '—';
-}
-
-function normalizeTimeScore(d){
-  const ans = d.answers.find(a => a.q.includes('A LA SEMANA'));
-  if(!ans) return 0;
-  const v = ans.value || '';
-  if(v.includes('20')) return 5;
-  if(v.includes('10 a 20')) return 4;
-  if(v.includes('5 a 10')) return 3;
-  return 1;
-}
-function normalizeAmbitionScore(d){
-  const ans = d.answers.find(a => a.q.includes('ingresos MENSUALES'));
-  if(!ans) return 3;
-  const v = ans.value || '';
-  if(v.includes('80M+')) return 5;
-  if(v.includes('40M')) return 4;
-  if(v.includes('20M')) return 3;
-  return 2;
-}
-function normalizeDepthScore(d){
-  return ['mentor','estratega'].includes(d.winner) ? 5 : 2;
-}
-function normalizeScaleScore(d){
-  return ['maestro','emprendedor','comunidad'].includes(d.winner) ? 5 : 2;
-}
-function normalizeMediaScore(d){
-  return ['mediatico','autor'].includes(d.winner) ? 5 : 2;
-}
-
-// =============================================================
-// PARTICLES
-// =============================================================
-(function(){
-  try {
-    const cnv = document.getElementById('bg');
-    if(!cnv) return;
-    const ctx = cnv.getContext('2d');
-    let W,H,parts=[];
-    const onResize=()=>{W=cnv.width=innerWidth;H=cnv.height=innerHeight};
-    onResize();addEventListener('resize',onResize);
-    const cols=['#00d4ff','#7b2fff','#ff8c00'];
-    const N=innerWidth<700?12:18;
-    for(let i=0;i<N;i++)parts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,r:Math.random()*1.5+.5,c:cols[i%3],a:Math.random()*.4+.2});
-    function tick(){
-      ctx.clearRect(0,0,W,H);
-      parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c;ctx.globalAlpha=p.a;ctx.shadowBlur=8;ctx.shadowColor=p.c;ctx.fill()});
-      ctx.globalAlpha=1;ctx.shadowBlur=0;
-      requestAnimationFrame(tick);
-    }
-    tick();
-  } catch(e){}
-})();
-
-// =============================================================
-// INIT
-// =============================================================
-document.addEventListener('DOMContentLoaded', () => {
-  const view = getView();
-  showView(view);
-
-  if(view === 'form'){
-    document.getElementById('btn-start').addEventListener('click', startForm);
-    document.getElementById('btn-next').addEventListener('click', nextQuestion);
-    document.getElementById('btn-prev').addEventListener('click', prevQuestion);
-  }
-
-  if(view === 'admin'){
-    document.getElementById('adm-login-btn').addEventListener('click', adminLogin);
-    document.getElementById('adm-pass').addEventListener('keypress', e => { if(e.key === 'Enter') adminLogin(); });
-    document.getElementById('adm-refresh').addEventListener('click', loadResponses);
-    document.getElementById('adm-export').addEventListener('click', exportExcel);
-    document.getElementById('adm-dashboard').addEventListener('click', () => { window.location.search = '?dashboard'; });
-    document.getElementById('adm-close-detail').addEventListener('click', () => { document.getElementById('adm-detail-card').style.display = 'none'; });
-  }
-
-  if(view === 'dashboard'){
-    loadDashboard();
-    document.getElementById('dash-refresh').addEventListener('click', loadDashboard);
-    document.querySelectorAll('.tab').forEach(t => {
-      t.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-        t.classList.add('active');
-        document.getElementById('tab-perfil').classList.add('hidden');
-        document.getElementById('tab-prioridades').classList.add('hidden');
-        document.getElementById('tab-propuesta').classList.add('hidden');
-        document.getElementById('tab-' + t.dataset.tab).classList.remove('hidden');
-      });
-    });
-  }
-});
-</script>
-</body>
-</html>
+    alert('Por favor completa tu nombre y c
