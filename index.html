@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Diagnóstico Estratégico — David Aponte | Nathalia & Jorge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --navy:#050d1f; --navy-2:#0a1730;
+  --cyan:#00d4ff; --purple:#7b2fff; --orange:#ff8c00;
+  --green:#00d48a; --red:#ff4757; --yellow:#ffd54a;
+  --white:#fff; --muted:rgba(255,255,255,.6);
+  --card:rgba(255,255,255,.04); --border:rgba(0,212,255,.18);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:radial-gradient(ellipse at top,#0a1730 0%,#050d1f 60%);
+  color:#fff; font-family:'Inter',system-ui,sans-serif;
+  min-height:100vh; line-height:1.5;
+}
+canvas.bg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.4}
+
+.app{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:24px 20px 60px}
+.brand{display:flex;align-items:center;gap:10px;padding:14px 0 22px;font-weight:800}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));box-shadow:0 0 14px var(--cyan)}
+.brand small{color:var(--muted);font-weight:500;margin-left:auto;font-size:.78rem}
+
+.eyebrow{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);padding:5px 12px;border:1px solid var(--border);border-radius:50px;background:rgba(0,212,255,.06);margin-bottom:16px}
+h1{font-size:clamp(1.8rem,4.5vw,2.8rem);font-weight:900;line-height:1.1;margin-bottom:14px}
+h2{font-size:clamp(1.3rem,2.4vw,1.8rem);font-weight:800;margin-bottom:12px}
+h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
+.lead{font-size:1.05rem;color:rgba(255,255,255,.78);margin-bottom:24px}
+.gradient{background:linear-gradient(135deg,var(--cyan) 10%,var(--purple) 50%,var(--orange) 90%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px;margin-bottom:20px}
+.card.glow{box-shadow:0 14px 40px rgba(0,212,255,.08)}
+
+.field{margin-bottom:18px}
+.field label{display:block;font-size:.85rem;font-weight:600;color:rgba(255,255,255,.85);margin-bottom:8px}
+.field input,.field select,.field textarea{
+  width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(0,212,255,.25);
+  border-radius:10px;padding:13px 16px;color:#fff;font-size:1rem;font-family:inherit;outline:none;transition:.2s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--cyan);box-shadow:0 0 18px rgba(0,212,255,.15)}
+.field input::placeholder,.field textarea::placeholder{color:rgba(255,255,255,.3)}
+
+.btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;border:none;padding:14px 28px;border-radius:50px;font-weight:700;font-size:1rem;cursor:pointer;transition:.2s;text-decoration:none;font-family:inherit}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,212,255,.3)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-ghost{background:transparent;border:1.5px solid rgba(0,212,255,.4);color:var(--cyan)}
+.btn-ghost:hover{background:rgba(0,212,255,.08)}
+
+.progress{height:6px;background:rgba(255,255,255,.08);border-radius:50px;overflow:hidden;margin-bottom:8px}
+.progress > div{height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));border-radius:50px;transition:.4s width}
+.progress-label{font-size:.78rem;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:24px}
+
+.options{display:grid;gap:12px}
+.opt{background:rgba(255,255,255,.04);border:1.5px solid rgba(0,212,255,.18);border-radius:14px;padding:16px 18px;cursor:pointer;color:#fff;transition:.2s;text-align:left;font-family:inherit;font-size:.95rem;width:100%;display:flex;align-items:center;gap:14px}
+.opt:hover{border-color:var(--cyan);background:rgba(0,212,255,.06)}
+.opt.selected{border-color:var(--cyan);background:rgba(0,212,255,.12);box-shadow:0 0 20px rgba(0,212,255,.2)}
+.opt .opt-ic{font-size:1.4rem;flex-shrink:0}
+.opt .opt-txt{flex:1;line-height:1.4}
+
+.checkbox-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.check{background:rgba(255,255,255,.04);border:1.5px solid rgba(0,212,255,.18);border-radius:12px;padding:14px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:10px;font-size:.9rem}
+.check:hover{border-color:var(--cyan)}
+.check.selected{border-color:var(--cyan);background:rgba(0,212,255,.1)}
+.check .ck-mark{width:20px;height:20px;border:2px solid var(--muted);border-radius:5px;flex-shrink:0;position:relative}
+.check.selected .ck-mark{background:var(--cyan);border-color:var(--cyan)}
+.check.selected .ck-mark::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--navy);font-weight:900;font-size:.85rem}
+
+.range-wrap{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.04);border:1.5px solid var(--border);border-radius:12px;padding:14px 18px}
+.range-wrap input[type=range]{flex:1;accent-color:var(--cyan)}
+.range-val{font-weight:800;color:var(--cyan);font-size:1.3rem;min-width:60px;text-align:right}
+
+.dim-tag{display:inline-block;padding:4px 12px;background:rgba(0,212,255,.1);border:1px solid var(--cyan);border-radius:50px;font-size:.72rem;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+
+.nav-row{display:flex;justify-content:space-between;gap:12px;margin-top:24px}
+
+/* RESULTS */
+.result-hero{text-align:center;padding:40px 20px;background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(123,47,255,.08));border:1.5px solid var(--cyan);border-radius:24px;margin-bottom:24px}
+.result-hero .archetype-ic{font-size:5rem;line-height:1;margin-bottom:16px}
+.result-hero h2{font-size:2.2rem;margin-bottom:8px}
+.result-hero .subtitle{color:var(--muted);font-size:1.1rem;max-width:600px;margin:0 auto}
+
+.insight{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px;border-left:4px solid var(--cyan)}
+.insight h4{color:var(--cyan);font-size:.95rem;margin-bottom:6px}
+.insight p{color:rgba(255,255,255,.8);font-size:.95rem}
+
+/* ADMIN/DASHBOARD */
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px}
+.kpi .v{font-size:2rem;font-weight:900;line-height:1}
+.kpi .l{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:6px}
+
+.resp-table{width:100%;border-collapse:collapse;font-size:.88rem;margin-top:12px}
+.resp-table th,.resp-table td{text-align:left;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)}
+.resp-table th{color:var(--cyan);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:1px}
+.resp-table tr:hover{background:rgba(0,212,255,.03)}
+
+.tabs{display:flex;gap:6px;margin-bottom:20px;border-bottom:1px solid rgba(0,212,255,.15);padding-bottom:0}
+.tab{padding:10px 18px;background:transparent;border:none;color:var(--muted);cursor:pointer;font-family:inherit;font-weight:600;font-size:.88rem;border-bottom:2px solid transparent;transition:.2s}
+.tab:hover{color:#fff}
+.tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+
+.chart-wrap{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:18px}
+.chart-wrap canvas{max-height:340px}
+
+.hidden{display:none!important}
+
+.notice{padding:12px 16px;border-radius:10px;font-size:.9rem;margin-bottom:14px}
+.notice.ok{background:rgba(0,212,138,.1);border:1px solid var(--green);color:var(--green)}
+.notice.err{background:rgba(255,71,87,.1);border:1px solid var(--red);color:var(--red)}
+.notice.info{background:rgba(0,212,255,.08);border:1px solid var(--cyan);color:var(--cyan)}
+
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--cyan);border-radius:50%;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+.pass-input{display:flex;gap:10px;align-items:center;margin-top:18px}
+.pass-input input{flex:1}
+
+.intro-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin:24px 0}
+.meta-card{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center}
+.meta-card .ic{font-size:1.6rem;margin-bottom:6px}
+.meta-card .lbl{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+
+.archetype-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;font-size:.85rem;transition:.2s}
+.archetype-card .ic{font-size:2rem;margin-bottom:6px}
+.archetype-card .nm{font-weight:700;margin-bottom:2px}
+.archetype-card .sc{color:var(--cyan);font-weight:800;font-size:1.1rem;margin-top:4px}
+
+@media(max-width:600px){
+  .app{padding:18px 14px 40px}
+  .card{padding:20px}
+  .result-hero{padding:30px 16px}
+  .result-hero .archetype-ic{font-size:4rem}
+  .result-hero h2{font-size:1.6rem}
+  .tabs{overflow-x:auto;white-space:nowrap}
+}
+</style>
+</head>
+<body>
+
+<canvas class="bg" id="bg"></canvas>
+
+<div class="app">
+
+<div class="brand">
+  <span class="dot"></span>
+  <span>Nathalia <span style="color:var(--cyan)">&</span> Jorge</span>
+  <small id="brand-mode">Diagnóstico estratégico</small>
+</div>
+
+<!-- ============ VIEW: FORM (default) ============ -->
+<div id="view-form">
+
+  <!-- Intro -->
+  <div id="screen-intro" class="card glow">
+    <span class="eyebrow">Para David Aponte · Confidencial</span>
+    <h1>Antes de construir el camino, <span class="gradient">queremos entenderte de verdad.</span></h1>
+    <p class="lead">Este diagnóstico nos va a permitir diseñar contigo el acompañamiento de los próximos 6 meses. No hay respuestas correctas — solo necesitamos claridad sobre tu visión, tus prioridades y tu forma de trabajar.</p>
+
+    <div class="intro-meta">
+      <div class="meta-card"><div class="ic">⏱️</div><div><strong>25 min</strong></div><div class="lbl">Tiempo</div></div>
+      <div class="meta-card"><div class="ic">📊</div><div><strong>8 áreas</strong></div><div class="lbl">A explorar</div></div>
+      <div class="meta-card"><div class="ic">🎯</div><div><strong>1 perfil</strong></div><div class="lbl">Tu arquetipo</div></div>
+      <div class="meta-card"><div class="ic">🔒</div><div><strong>Privado</strong></div><div class="lbl">Solo Nathalia + Jorge</div></div>
+    </div>
+
+    <p style="color:var(--muted);font-size:.92rem;margin-bottom:18px">Al final vas a recibir tu <strong style="color:#fff">arquetipo de marca personal</strong> — el camino que más resuena con quién eres y dónde quieres llegar. Y nosotros recibimos toda tu información para armar la propuesta del acompañamiento.</p>
+
+    <div class="field">
+      <label>Tu nombre completo *</label>
+      <input type="text" id="f-name" placeholder="David Aponte Becerra" value="David Aponte Becerra" />
+    </div>
+    <div class="field">
+      <label>Tu correo *</label>
+      <input type="email" id="f-email" placeholder="david@davidaponte.com" />
+    </div>
+
+    <button class="btn" id="btn-start">Comenzar diagnóstico →</button>
+  </div>
+
+  <!-- Questions -->
+  <div id="screen-questions" class="hidden">
+    <div class="progress"><div id="prog-bar" style="width:0%"></div></div>
+    <div class="progress-label">
+      <span id="prog-current">Pregunta 1</span>
+      <span id="prog-total">de 18</span>
+    </div>
+
+    <div class="card glow" id="question-card">
+      <!-- inyecta JS -->
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" id="btn-prev">← Anterior</button>
+      <button class="btn" id="btn-next">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- Saving -->
+  <div id="screen-saving" class="hidden">
+    <div class="card glow" style="text-align:center;padding:60px 20px">
+      <div class="spinner" style="width:48px;height:48px;border-width:4px;margin-bottom:20px"></div>
+      <h2>Procesando tus respuestas...</h2>
+      <p class="lead" style="max-width:500px;margin:14px auto 0">Calculando tu arquetipo y guardando para Nathalia y Jorge.</p>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div id="screen-result" class="hidden">
+    <div class="result-hero">
+      <div class="archetype-ic" id="r-icon">🎓</div>
+      <span class="eyebrow">Tu arquetipo</span>
+      <h2 id="r-name">El Maestro Digital</h2>
+      <p class="subtitle" id="r-subtitle">El camino que más resuena contigo y tu visión.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:16px;color:var(--cyan)">📊 Tu mapa de arquetipos</h3>
+      <div class="checkbox-grid" id="r-archetypes-grid"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:16px;color:var(--cyan)">💡 3 insights para tu camino</h3>
+      <div id="r-insights"></div>
+    </div>
+
+    <div class="card" style="text-align:center;background:linear-gradient(135deg,rgba(0,212,255,.06),rgba(123,47,255,.06));border-color:var(--cyan)">
+      <h3 class="gradient" style="font-size:1.3rem">Tu información ya está con Nathalia y Jorge.</h3>
+      <p style="color:var(--muted);margin-top:8px">En las próximas 48 horas te llega la propuesta del acompañamiento de 6 meses, diseñada a partir de tu arquetipo y tus prioridades. Cualquier cosa: <strong style="color:#fff">jorgeicone.com@gmail.com</strong></p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ VIEW: ADMIN (?admin) ============ -->
+<div id="view-admin" class="hidden">
+
+  <div id="admin-login" class="card glow" style="max-width:440px;margin:60px auto">
+    <div style="text-align:center;margin-bottom:14px;font-size:3rem">🔐</div>
+    <h2 style="text-align:center">Panel de administración</h2>
+    <p class="lead" style="text-align:center;font-size:.95rem">Acceso exclusivo Nathalia & Jorge</p>
+    <div class="pass-input">
+      <input type="password" id="adm-pass" placeholder="Contraseña" />
+      <button class="btn" id="adm-login-btn">Entrar →</button>
+    </div>
+    <div id="adm-login-err" class="notice err hidden" style="margin-top:14px">Contraseña incorrecta</div>
+  </div>
+
+  <div id="admin-panel" class="hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+      <div>
+        <span class="eyebrow">Admin · Confidencial</span>
+        <h1 style="font-size:1.8rem">Respuestas del diagnóstico</h1>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-ghost" id="adm-refresh">🔄 Actualizar</button>
+        <button class="btn btn-ghost" id="adm-export">📥 Excel</button>
+        <button class="btn btn-ghost" id="adm-dashboard">📊 Dashboard</button>
+      </div>
+    </div>
+
+    <div id="adm-status" class="notice info">Cargando respuestas...</div>
+
+    <div class="admin-grid">
+      <div class="kpi"><div class="v gradient" id="kpi-total">0</div><div class="l">Respuestas</div></div>
+      <div class="kpi"><div class="v gradient" id="kpi-archetype">—</div><div class="l">Arquetipo dominante</div></div>
+      <div class="kpi"><div class="v gradient" id="kpi-completion">0%</div><div class="l">Completitud</div></div>
+      <div class="kpi"><div class="v gradient" id="kpi-last">—</div><div class="l">Última respuesta</div></div>
+    </div>
+
+    <div class="card">
+      <h3>Listado de respuestas</h3>
+      <div style="overflow-x:auto">
+        <table class="resp-table" id="adm-table">
+          <thead><tr><th>Fecha</th><th>Nombre</th><th>Email</th><th>Arquetipo</th><th>Acción</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" id="adm-detail-card" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h3 id="adm-detail-name">Respuesta detallada</h3>
+        <button class="btn btn-ghost" id="adm-close-detail">✕ Cerrar</button>
+      </div>
+      <div id="adm-detail-body"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ VIEW: DASHBOARD (?dashboard) ============ -->
+<div id="view-dashboard" class="hidden">
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+    <div>
+      <span class="eyebrow">Dashboard · Visualización</span>
+      <h1 style="font-size:1.8rem">Análisis del diagnóstico</h1>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" id="dash-refresh">🔄 Actualizar</button>
+      <button class="btn btn-ghost" onclick="window.location.search='?admin'">🔐 Admin</button>
+    </div>
+  </div>
+
+  <div id="dash-status" class="notice info">Cargando datos...</div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="perfil">📊 Perfil</button>
+    <button class="tab" data-tab="prioridades">🎯 Prioridades de inversión</button>
+    <button class="tab" data-tab="propuesta">💡 Base para propuesta</button>
+  </div>
+
+  <div id="tab-perfil">
+    <div class="chart-wrap">
+      <h3>Distribución por arquetipo (puntajes)</h3>
+      <canvas id="ch-archetypes"></canvas>
+    </div>
+    <div class="chart-wrap">
+      <h3>Disponibilidad de tiempo vs ambición</h3>
+      <canvas id="ch-time-amb"></canvas>
+    </div>
+  </div>
+
+  <div id="tab-prioridades" class="hidden">
+    <div class="chart-wrap">
+      <h3>Ranking de áreas donde quiere invertir</h3>
+      <canvas id="ch-priorities"></canvas>
+    </div>
+  </div>
+
+  <div id="tab-propuesta" class="hidden">
+    <div class="card">
+      <h3 style="color:var(--cyan);margin-bottom:14px">📋 Base para la propuesta de acompañamiento</h3>
+      <div id="dash-proposal-body">
+        <p style="color:var(--muted)">Cargando síntesis...</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+<script>
+// =============================================================
+// CONFIG
+// =============================================================
+const GH_OWNER = 'jorgeicone';
+const GH_REPO  = 'diagnostico-david-aponte';
+const ADMIN_PASS = 'aponte2026';
+const TOKEN_PARTS = ['ghp_6g1MgGH3VXcG', '35wqRtntGfzdWBpmKz0vl4pO'];
+const TOKEN = TOKEN_PARTS.join('');
+
+// =============================================================
+// 8 ARQUETIPOS DE MARCA PERSONAL FINANCIERA
+// =============================================================
+const ARCHETYPES = {
+  maestro: {
+    icon:'🎓', name:'El Maestro Digital',
+    subtitle:'Quieres escalar tu conocimiento a través de cursos online y llegar a miles. Tu negocio se vuelve activo digital.',
+    insights:[
+      {h:'Tu motor es el contenido evergreen', t:'Tu mayor palanca es construir un curso insignia bien estructurado en Hotmart con embudo automatizado. Una vez puesto, vende solo.'},
+      {h:'Necesitas SEO y autoridad orgánica', t:'Tu cliente te busca en Google y YouTube. Sin contenido posicionado, todo tu tráfico depende de pauta paga — y eso encarece el modelo.'},
+      {h:'La metodología es tu diferenciador', t:'Mil personas enseñan finanzas. Lo que las separa es el método propio con nombre y promesa medible. Ahí es donde Nathalia entra fuerte.'}
+    ]
+  },
+  estratega: {
+    icon:'🧭', name:'El Estratega Premium',
+    subtitle:'Quieres posicionarte como asesor de alto nivel, con pocos clientes pero de alto ticket. Calidad sobre escala.',
+    insights:[
+      {h:'Tu posicionamiento debe gritar autoridad', t:'Tu marca tiene que reflejar exclusividad: cero plantillas, cero promesas masivas. Tu web debe parecerse más a la de un fondo de inversión que a la de un coach.'},
+      {h:'LinkedIn es tu canal #1', t:'Tu cliente premium vive ahí. Necesitas 2-3 publicaciones de pensamiento al mes que generen conversación entre tomadores de decisión.'},
+      {h:'El curso es la antesala, no el producto', t:'Tu curso de Hotmart debería ser un filtro que pre-cualifica clientes para una asesoría 1:1 de alto ticket. No al revés.'}
+    ]
+  },
+  comunidad: {
+    icon:'🌐', name:'El Líder de Comunidad',
+    subtitle:'Quieres construir una tribu activa con membresía recurrente. Ingresos predecibles, relación a largo plazo.',
+    insights:[
+      {h:'Tu activo es la frecuencia, no el alcance', t:'No necesitas millones de seguidores — necesitas 500 personas que paguen $100k/mes y vivan en tu comunidad. Eso son $50M mensuales recurrentes.'},
+      {h:'Tu marca personal alimenta la comunidad', t:'Tu contenido público es el imán que lleva a la comunidad cerrada. La estrategia de redes cambia: das valor masivo afuera, profundidad adentro.'},
+      {h:'La metodología es ritual, no manual', t:'En comunidades, la metodología se vive en sesiones semanales, retos mensuales y rituales claros. Nathalia te ayuda a diseñar esa arquitectura de experiencia.'}
+    ]
+  },
+  autor: {
+    icon:'🏛️', name:'El Autor-Experto',
+    subtitle:'Tu camino es la autoridad institucional: libros, prensa, conferencias, columnas. Eres referente, no influencer.',
+    insights:[
+      {h:'Ya tienes la base — Portafolio, Cámara de Comercio, iNNpulsa', t:'Eso vale oro y no se está visibilizando. Tu próximo movimiento natural es un libro o una serie de papers que consoliden tu pensamiento propio.'},
+      {h:'El digital es soporte, no protagonista', t:'Para este arquetipo, tu web es un currículum bien presentado. Tu marca crece más en escenarios, prensa y eventos que en Instagram.'},
+      {h:'Hotmart no es lo natural', t:'Mejor un programa formal con universidad/empresa que un curso masivo. El ticket es más alto y la autoridad se refuerza.'}
+    ]
+  },
+  consultor: {
+    icon:'💼', name:'El Consultor Corporativo',
+    subtitle:'Tu mercado son las empresas. Educación financiera B2B, ticket alto, contratos medianos. Volumen contenido.',
+    insights:[
+      {h:'Tu venta no es el curso, es el contrato anual', t:'Una sola empresa de 200 empleados con un programa anual vale más que 500 personas en un curso. Concentrar fuerza en pocos cierres grandes.'},
+      {h:'LinkedIn es tu única red de verdad', t:'Tu cliente decisor vive ahí. Tu Instagram puede ser secundario; lo que importa es contenido B2B serio en LinkedIn.'},
+      {h:'Los testimonios son de empresas, no personas', t:'Necesitas casos de éxito de Coomeva, Cámara de Comercio del Casanare y similares — con números, no anécdotas.'}
+    ]
+  },
+  mediatico: {
+    icon:'📺', name:'El Conferencista Mediático',
+    subtitle:'Quieres alta visibilidad: escenarios grandes, medios masivos, presencia constante. Tu negocio vive de tu cara.',
+    insights:[
+      {h:'Tu negocio es tu agenda', t:'Cada conferencia, cada aparición en medios, cada podcast es una transacción. Tu valor sube cuando tu calendario está lleno.'},
+      {h:'El video corto es tu autopista', t:'Reels e YouTube Shorts son tu canal de adquisición principal. Necesitas un sistema de producción semanal sostenible.'},
+      {h:'Hotmart sí funciona, pero como upsell', t:'La gente que te ve en TV o en un evento luego busca tu curso. Es el embudo natural: visibilidad → curso → comunidad.'}
+    ]
+  },
+  mentor: {
+    icon:'🎯', name:'El Mentor Transformador',
+    subtitle:'Tu modelo es acompañamiento profundo 1:1 o grupos pequeños. Cambio personal, no contenido masivo.',
+    insights:[
+      {h:'Tu propuesta de valor es transformación, no información', t:'No vendes finanzas, vendes "salir de deudas en 12 meses con acompañamiento semanal". La promesa es el resultado, no el contenido.'},
+      {h:'El precio se justifica por el ROI personal', t:'Si tu mentoría le ahorra a alguien $20M en intereses, vale fácil $5M. Tu pricing no se compara con cursos, se compara con resultados.'},
+      {h:'Hotmart es soporte, no producto', t:'El curso es el material de estudio del mentee, pero el corazón del negocio son las sesiones contigo. Modelo: high-touch.'}
+    ]
+  },
+  emprendedor: {
+    icon:'🚀', name:'El Emprendedor Financiero',
+    subtitle:'Quieres construir un producto digital escalable propio (app, plataforma, fintech educativa). Tu marca es soporte del producto.',
+    insights:[
+      {h:'Tu marca personal alimenta el producto', t:'Cada contenido tuyo lleva a usuarios al producto. Tú no eres el producto, eres el rostro confiable que respalda la plataforma.'},
+      {h:'Hotmart es transitorio', t:'Empiezas ahí, pero tu meta es tener plataforma propia con datos de usuarios, comunidad y posibilidad de levantar capital eventualmente.'},
+      {h:'Necesitas talento técnico desde temprano', t:'Tu equipo no es solo marca y metodología — necesitas desarrollo de producto. Eso cambia el alcance y el costo del acompañamiento.'}
+    ]
+  }
+};
+
+// =============================================================
+// PREGUNTAS (18 preguntas, mapean a arquetipos)
+// Cada opción suma puntos a 1-3 arquetipos
+// =============================================================
+const QUESTIONS = [
+  // ============ DIMENSIÓN 1: VISIÓN 12-24 MESES ============
+  {dim:'Visión a 12-24 meses', type:'choice', q:'¿Cómo te imaginas posicionado dentro de 2 años?', opts:[
+    {ic:'🎓', t:'Reconocido masivamente por educar — miles de estudiantes en cursos online', s:{maestro:3, mediatico:1}},
+    {ic:'🧭', t:'Referente premium de pocos clientes de alto perfil', s:{estratega:3, mentor:1}},
+    {ic:'🌐', t:'Líder de una comunidad activa y leal con membresía', s:{comunidad:3}},
+    {ic:'🏛️', t:'Autoridad institucional con libros, prensa y conferencias', s:{autor:3, mediatico:1}},
+    {ic:'💼', t:'Consultor de cabecera para empresas medianas y grandes', s:{consultor:3}},
+    {ic:'🚀', t:'Empresario con producto digital propio (app/plataforma) escalable', s:{emprendedor:3}}
+  ]},
+  // ============ DIMENSIÓN 2: MODELO MONETIZACIÓN ============
+  {dim:'Modelo de monetización', type:'choice', q:'¿Cuál modelo de ingresos te entusiasma más para los próximos 18 meses?', opts:[
+    {ic:'📦', t:'Cursos online escalables tipo Hotmart — vendo mientras duermo', s:{maestro:3, emprendedor:1}},
+    {ic:'💎', t:'Asesoría 1:1 de alto ticket — pocos clientes, mucho valor', s:{estratega:3, mentor:2}},
+    {ic:'🔄', t:'Membresía mensual recurrente — comunidad cerrada', s:{comunidad:3}},
+    {ic:'🎤', t:'Conferencias, libros y eventos — autoridad', s:{autor:2, mediatico:3}},
+    {ic:'🏢', t:'Contratos B2B con empresas — programas in-house', s:{consultor:3}},
+    {ic:'📱', t:'Producto digital propio (SaaS, app) con suscripción', s:{emprendedor:3}}
+  ]},
+  {dim:'Modelo de monetización', type:'choice', q:'¿Cómo te sientes con la idea de Hotmart como plataforma central?', opts:[
+    {ic:'🔥', t:'Encaja perfecto — quiero construir todo mi negocio digital ahí', s:{maestro:3, emprendedor:1}},
+    {ic:'✅', t:'Sí, pero como puerta de entrada hacia algo más premium después', s:{estratega:2, mentor:2, comunidad:1}},
+    {ic:'🤔', t:'Útil para empezar, pero a mediano plazo quiero plataforma propia', s:{emprendedor:3, comunidad:1}},
+    {ic:'❌', t:'No es el centro — mi negocio crece más por otras vías (eventos, B2B)', s:{autor:2, mediatico:2, consultor:2}}
+  ]},
+
+  // ============ DIMENSIÓN 3: TIEMPO ============
+  {dim:'Disponibilidad de tiempo', type:'choice', q:'¿Cuántas horas A LA SEMANA puedes dedicar TÚ personalmente a tu marca y contenido?', opts:[
+    {ic:'⏰', t:'Menos de 5 horas — necesito procesos muy automatizados', s:{maestro:2, emprendedor:2, consultor:1}},
+    {ic:'⏱️', t:'5 a 10 horas — algo de contenido, decisiones estratégicas', s:{estratega:2, autor:2, consultor:2}},
+    {ic:'⏳', t:'10 a 20 horas — soy parte activa del contenido y la comunidad', s:{comunidad:3, mentor:2, mediatico:2}},
+    {ic:'🔥', t:'Más de 20 horas — mi marca es prácticamente mi trabajo principal', s:{mediatico:3, comunidad:2, mentor:1}}
+  ]},
+  {dim:'Disponibilidad de tiempo', type:'choice', q:'¿Cuántas horas a la semana estás dispuesto a estar en cámara o vivo (Reels, IG Lives, podcast, conferencias)?', opts:[
+    {ic:'📵', t:'Casi nada — prefiero contenido grabado/escrito', s:{autor:3, estratega:1, consultor:2}},
+    {ic:'🎙️', t:'1-2 horas semanales — algo medido', s:{maestro:2, mentor:2, emprendedor:2}},
+    {ic:'📹', t:'3-5 horas — contenido constante', s:{mediatico:2, comunidad:2}},
+    {ic:'🎬', t:'5+ horas — la cámara es parte de mi modelo', s:{mediatico:3, comunidad:1}}
+  ]},
+
+  // ============ DIMENSIÓN 4: AUDIENCIA OBJETIVO ============
+  {dim:'Audiencia objetivo', type:'choice', q:'¿A quién quieres llegar PRINCIPALMENTE?', opts:[
+    {ic:'👥', t:'Personas naturales con deudas o sin educación financiera', s:{maestro:2, comunidad:2, mediatico:2}},
+    {ic:'💼', t:'Profesionales en cargos medios con ingresos por organizar', s:{estratega:2, mentor:3, maestro:1}},
+    {ic:'🏪', t:'Emprendedores y dueños de PYME', s:{mentor:2, consultor:2, emprendedor:1}},
+    {ic:'🏢', t:'Empresas medianas y grandes (B2B)', s:{consultor:3}},
+    {ic:'🎯', t:'Audiencia masiva, todos los niveles', s:{mediatico:3, maestro:1}}
+  ]},
+  {dim:'Audiencia objetivo', type:'choice', q:'¿Qué tan importante es para ti el ticket por cliente vs. el volumen?', opts:[
+    {ic:'💎', t:'Mejor pocos clientes pagando mucho — ticket alto', s:{estratega:3, mentor:2, consultor:2}},
+    {ic:'⚖️', t:'Balance — ticket medio, volumen medio', s:{maestro:2, comunidad:2}},
+    {ic:'📈', t:'Mejor muchos clientes pagando poco — volumen alto', s:{maestro:3, mediatico:2, emprendedor:2}}
+  ]},
+
+  // ============ DIMENSIÓN 5: CURSOS ============
+  {dim:'Cursos: presente y futuro', type:'choice', q:'¿Cuál es tu situación actual con tu curso de Transformación Financiera?', opts:[
+    {ic:'✅', t:'Lo tengo funcionando, quiero mejorarlo y escalarlo en Hotmart', s:{maestro:3, emprendedor:1}},
+    {ic:'🔄', t:'Lo tengo, pero quiero rediseñarlo desde cero metodológicamente', s:{maestro:2, mentor:2, comunidad:1}},
+    {ic:'🧭', t:'Lo uso como filtro para captar clientes de asesoría 1:1', s:{estratega:3, mentor:2}},
+    {ic:'🏢', t:'Quiero adaptarlo para venderlo a empresas (B2B)', s:{consultor:3}},
+    {ic:'🚀', t:'Más que un curso, quiero construir una plataforma/app propia', s:{emprendedor:3}}
+  ]},
+  {dim:'Cursos: presente y futuro', type:'choice', q:'En 6 meses, ¿cuál es el ideal para tu portafolio de cursos?', opts:[
+    {ic:'🎯', t:'Un solo curso insignia muy bien hecho que sea evergreen', s:{maestro:3, estratega:1}},
+    {ic:'📚', t:'2-3 cursos en niveles (básico, intermedio, avanzado) — escalera', s:{maestro:2, comunidad:2}},
+    {ic:'🏛️', t:'Un programa formal certificado con respaldo institucional', s:{autor:3, consultor:2}},
+    {ic:'💎', t:'Un curso premium + acompañamiento incluido', s:{mentor:3, estratega:2}}
+  ]},
+
+  // ============ DIMENSIÓN 6: MÉTRICAS A 6 MESES ============
+  {dim:'Métricas objetivo a 6 meses', type:'choice', q:'¿Cuál sería el resultado más importante para ti a 6 meses?', opts:[
+    {ic:'📈', t:'500+ estudiantes pagando en cursos online', s:{maestro:3, emprendedor:1}},
+    {ic:'💎', t:'20-30 clientes 1:1 de alto ticket', s:{estratega:3, mentor:2}},
+    {ic:'🌐', t:'Comunidad de 500-1000 miembros activos pagando', s:{comunidad:3}},
+    {ic:'🏢', t:'3-5 contratos B2B firmados con empresas', s:{consultor:3}},
+    {ic:'📰', t:'Libro publicado + 30+ apariciones en medios', s:{autor:3, mediatico:2}},
+    {ic:'🚀', t:'Producto digital propio lanzado con primeros 200 usuarios', s:{emprendedor:3}}
+  ]},
+  {dim:'Métricas objetivo a 6 meses', type:'choice', q:'¿Cuál es la meta de ingresos MENSUALES sostenibles a 6 meses?', opts:[
+    {ic:'💰', t:'$10M-$20M COP mensuales', s:{mentor:2, estratega:1, comunidad:1}},
+    {ic:'💵', t:'$20M-$40M COP mensuales', s:{maestro:2, estratega:2, mediatico:1}},
+    {ic:'💸', t:'$40M-$80M COP mensuales', s:{maestro:1, comunidad:2, consultor:2, mediatico:2}},
+    {ic:'🏦', t:'$80M+ COP mensuales', s:{consultor:2, emprendedor:2, mediatico:2}}
+  ]},
+
+  // ============ DIMENSIÓN 7: ÁREAS DE INVERSIÓN ============
+  {dim:'Áreas de inversión prioritarias', type:'multi', q:'De las siguientes áreas, ¿cuáles son tus TOP 3 prioridades de inversión? (selecciona 3)', max:3, opts:[
+    {ic:'🎨', t:'Marca / identidad visual (logo, paleta, sistema gráfico)', s:{estratega:1, autor:1, mediatico:1}, key:'marca'},
+    {ic:'🌐', t:'Web / plataforma digital nueva', s:{maestro:1, emprendedor:2, estratega:1}, key:'web'},
+    {ic:'📝', t:'Contenido / SEO / posicionamiento orgánico', s:{maestro:2, autor:1, mediatico:1}, key:'contenido'},
+    {ic:'💸', t:'Pauta paga / publicidad digital', s:{maestro:1, mediatico:1, emprendedor:1}, key:'pauta'},
+    {ic:'🎓', t:'Metodología pedagógica del curso (con experta)', s:{maestro:2, mentor:2, comunidad:1}, key:'metodologia'},
+    {ic:'🌐', t:'Comunidad / membresía / plataforma de tribu', s:{comunidad:3}, key:'comunidad'},
+    {ic:'🔄', t:'Embudo de ventas / conversión', s:{maestro:2, emprendedor:2}, key:'embudo'},
+    {ic:'📦', t:'Producción de cursos / setup Hotmart', s:{maestro:2, emprendedor:1}, key:'produccion'},
+    {ic:'🎙️', t:'Producción de video / podcast / contenido medios', s:{mediatico:2, comunidad:1}, key:'video'},
+    {ic:'🤝', t:'Relacionamiento B2B / ventas corporativas', s:{consultor:3}, key:'b2b'}
+  ]},
+  {dim:'Áreas de inversión prioritarias', type:'choice', q:'Si tuvieras que elegir UNA sola palanca para invertir el próximo trimestre, ¿cuál sería?', opts:[
+    {ic:'🎓', t:'Rediseñar metodológicamente el curso para que sea referente', s:{maestro:3, mentor:2}},
+    {ic:'🌐', t:'Construir una plataforma propia (no depender de Hotmart)', s:{emprendedor:3}},
+    {ic:'📝', t:'Producir mucho contenido orgánico para posicionarme', s:{mediatico:2, maestro:2, autor:1}},
+    {ic:'💎', t:'Posicionarme como autoridad premium (web alto nivel, prensa)', s:{estratega:3, autor:2}},
+    {ic:'🤝', t:'Salir activamente a vender a empresas', s:{consultor:3}}
+  ]},
+
+  // ============ DIMENSIÓN 8: ESTILO DE ACOMPAÑAMIENTO ============
+  {dim:'Estilo de acompañamiento preferido', type:'choice', q:'¿Cómo te imaginas trabajando con un equipo externo de marca y metodología?', opts:[
+    {ic:'🧠', t:'Estratégico: me asesoran a alto nivel, yo decido y delego ejecución a mi equipo', s:{estratega:2, autor:2}},
+    {ic:'⚡', t:'Ejecutor: que ejecuten TODO y yo solo valido — yo no tengo tiempo de operar', s:{mediatico:3, emprendedor:2, maestro:1}},
+    {ic:'🤝', t:'Híbrido: construimos juntos, ellos ejecutan, yo aporto contenido y validación', s:{maestro:2, consultor:2, comunidad:2}},
+    {ic:'💎', t:'Profundo y largo plazo: relación de socios estratégicos, no proveedores', s:{mentor:3, estratega:1, comunidad:1}}
+  ]},
+  {dim:'Estilo de acompañamiento preferido', type:'choice', q:'¿Qué frecuencia de contacto contigo es ideal para el equipo?', opts:[
+    {ic:'📅', t:'1 sesión mensual estratégica de 90 min — el resto avanza autónomo', s:{estratega:2, autor:2, mediatico:2}},
+    {ic:'📆', t:'2 sesiones mensuales (estratégica + táctica)', s:{maestro:2, consultor:2, emprendedor:1}},
+    {ic:'🗓️', t:'1 sesión semanal de 60 min', s:{mentor:2, comunidad:2, emprendedor:2}},
+    {ic:'💬', t:'Contacto diario por WhatsApp + sesiones puntuales', s:{mediatico:3, emprendedor:2}}
+  ]},
+
+  // ============ ABIERTAS CONTEXTUALES ============
+  {dim:'Contexto adicional', type:'text', q:'En tus propias palabras, ¿cuál es tu visión a 24 meses? (Lo más concreta posible)', placeholder:'Ej: "Quiero ser el referente #1 en finanzas personales en Colombia con un curso insignia, una comunidad activa y conferencias internacionales..."', s:{}},
+  {dim:'Contexto adicional', type:'text', q:'¿Qué es lo que MÁS te frustra hoy de tu situación digital actual?', placeholder:'Ej: "Que invierto tiempo en contenido y no convierto", "Que se ve poco profesional", "Que dependo 100% del boca a boca"...', s:{}},
+  {dim:'Contexto adicional', type:'text', q:'¿Hay algo importante que NO te hayamos preguntado y que deberíamos saber?', placeholder:'Cualquier contexto que ayude a Nathalia y Jorge a entenderte mejor antes de armar la propuesta...', s:{}}
+];
+
+// =============================================================
+// STATE
+// =============================================================
+let state = {
+  current: 0,
+  answers: {},   // {questionIdx: {value, score}}
+  multiSel: {},  // {questionIdx: [keys]}
+  user: {}
+};
+
+// =============================================================
+// ROUTING
+// =============================================================
+function getView(){
+  const q = window.location.search;
+  if(q.includes('admin')) return 'admin';
+  if(q.includes('dashboard')) return 'dashboard';
+  return 'form';
+}
+
+function showView(name){
+  document.getElementById('view-form').classList.add('hidden');
+  document.getElementById('view-admin').classList.add('hidden');
+  document.getElementById('view-dashboard').classList.add('hidden');
+  document.getElementById('view-'+name).classList.remove('hidden');
+  const bm = document.getElementById('brand-mode');
+  if(name==='admin') bm.textContent = '🔐 Panel de administración';
+  else if(name==='dashboard') bm.textContent = '📊 Dashboard';
+  else bm.textContent = 'Diagnóstico estratégico';
+}
+
+// =============================================================
+// FORM LOGIC
+// =============================================================
+function startForm(){
+  const name = document.getElementById('f-name').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  if(!name || !email){
+    alert('Por favor completa tu nombre y correo.');
+    return;
+  }
+  state.user = {name, email, started_at: new Date().toISOString()};
+  document.getElementById('screen-intro').classList.add('hidden');
+  document.getElementById('screen-questions').classList.remove('hidden');
+  state.current = 0;
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const i = state.current;
+  const q = QUESTIONS[i];
+  const total = QUESTIONS.length;
+  document.getElementById('prog-bar').style.width = ((i+1)/total*100)+'%';
+  document.getElementById('prog-current').textContent = `Pregunta ${i+1}`;
+  document.getElementById('prog-total').textContent = `de ${total}`;
+  document.getElementById('btn-prev').disabled = (i===0);
+  document.getElementById('btn-next').textContent = (i===total-1) ? 'Ver mi arquetipo →' : 'Siguiente →';
+
+  let html = `<span class="dim-tag">${q.dim}</span><h2>${q.q}</h2>`;
+
+  if(q.type === 'choice'){
+    html += '<div class="options" style="margin-top:18px">';
+    q.opts.forEach((o, idx) => {
+      const sel = (state.answers[i] && state.answers[i].idx === idx) ? 'selected' : '';
+      html += `<button class="opt ${sel}" data-idx="${idx}" type="button">
+        <span class="opt-ic">${o.ic}</span>
+        <span class="opt-txt">${o.t}</span>
+      </button>`;
+    });
+    html += '</div>';
+  } else if(q.type === 'multi'){
+    const sel = state.multiSel[i] || [];
+    html += `<p style="color:var(--muted);font-size:.9rem;margin:8px 0 16px">Selecciona hasta ${q.max} opciones.</p>`;
+    html += '<div class="checkbox-grid" style="margin-top:8px">';
+    q.opts.forEach((o, idx) => {
+      const isSel = sel.includes(idx);
+      html += `<div class="check ${isSel?'selected':''}" data-idx="${idx}">
+        <div class="ck-mark"></div>
+        <div><strong>${o.ic}</strong> ${o.t}</div>
+      </div>`;
+    });
+    html += '</div>';
+  } else if(q.type === 'text'){
+    const v = (state.answers[i] && state.answers[i].text) || '';
+    html += `<textarea id="q-text" placeholder="${q.placeholder}" style="min-height:140px;margin-top:14px">${v}</textarea>`;
+  }
+
+  document.getElementById('question-card').innerHTML = html;
+
+  // Bind handlers
+  if(q.type === 'choice'){
+    document.querySelectorAll('#question-card .opt').forEach(el => {
+      el.addEventListener('click', () => {
+        const idx = +el.dataset.idx;
+        state.answers[i] = { idx, value: q.opts[idx].t, score: q.opts[idx].s };
+        document.querySelectorAll('#question-card .opt').forEach(x => x.classList.remove('selected'));
+        el.classList.add('selected');
+      });
+    });
+  } else if(q.type === 'multi'){
+    document.querySelectorAll('#question-card .check').forEach(el => {
+      el.addEventListener('click', () => {
+        const idx = +el.dataset.idx;
+        let cur = state.multiSel[i] || [];
+        if(cur.includes(idx)){
+          cur = cur.filter(x => x !== idx);
+        } else {
+          if(cur.length >= q.max){
+            alert(`Solo puedes seleccionar ${q.max} opciones. Deselecciona alguna primero.`);
+            return;
+          }
+          cur.push(idx);
+        }
+        state.multiSel[i] = cur;
+        // Build aggregated score
+        const agg = {};
+        const keys = [];
+        cur.forEach(ix => {
+          const opt = q.opts[ix];
+          keys.push(opt.key || opt.t);
+          Object.keys(opt.s).forEach(k => agg[k] = (agg[k]||0) + opt.s[k]);
+        });
+        state.answers[i] = { idxs: cur, value: keys.join(', '), score: agg };
+        renderQuestion();
+      });
+    });
+  }
+}
+
+function nextQuestion(){
+  const i = state.current;
+  const q = QUESTIONS[i];
+  // Capture text
+  if(q.type === 'text'){
+    const txt = document.getElementById('q-text').value.trim();
+    state.answers[i] = { text: txt, value: txt, score: {} };
+  } else {
+    if(!state.answers[i]){
+      alert('Selecciona una opción antes de continuar.');
+      return;
+    }
+  }
+
+  if(i === QUESTIONS.length - 1){
+    submitAnswers();
+  } else {
+    state.current++;
+    renderQuestion();
+  }
+}
+
+function prevQuestion(){
+  if(state.current > 0){
+    state.current--;
+    renderQuestion();
+  }
+}
+
+// =============================================================
+// SCORING / ARQUETIPO
+// =============================================================
+function computeArchetype(){
+  const scores = {};
+  Object.keys(ARCHETYPES).forEach(k => scores[k] = 0);
+  Object.values(state.answers).forEach(a => {
+    if(a.score){
+      Object.keys(a.score).forEach(k => scores[k] += a.score[k]);
+    }
+  });
+  // Sort
+  const ordered = Object.entries(scores).sort((a,b) => b[1]-a[1]);
+  return { winner: ordered[0][0], scores, ordered };
+}
+
+// =============================================================
+// SUBMIT
+// =============================================================
+async function submitAnswers(){
+  document.getElementById('screen-questions').classList.add('hidden');
+  document.getElementById('screen-saving').classList.remove('hidden');
+
+  const result = computeArchetype();
+  const payload = {
+    user: state.user,
+    submitted_at: new Date().toISOString(),
+    answers: QUESTIONS.map((q, i) => ({
+      dim: q.dim,
+      q: q.q,
+      type: q.type,
+      value: state.answers[i] ? state.answers[i].value : null,
+      score: state.answers[i] ? state.answers[i].score : null
+    })),
+    scores: result.scores,
+    winner: result.winner
+  };
+
+  // Send to GitHub Issues
+  try {
+    await saveToGitHub(payload);
+  } catch(e){
+    console.error('Save error:', e);
+  }
+
+  // Show result
+  setTimeout(() => {
+    document.getElementById('screen-saving').classList.add('hidden');
+    showResult(result);
+  }, 1500);
+}
+
+async function saveToGitHub(payload){
+  const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/issues`;
+  const body = {
+    title: `Diagnóstico — ${payload.user.name} — ${payload.winner}`,
+    body: '```json\n' + JSON.stringify(payload, null, 2) + '\n```',
+    labels: ['diagnostic']
+  };
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if(!r.ok) throw new Error('GitHub error: ' + r.status);
+  return r.json();
+}
+
+// =============================================================
+// RESULT
+// =============================================================
+function showResult(result){
+  document.getElementById('screen-result').classList.remove('hidden');
+  const arc = ARCHETYPES[result.winner];
+  document.getElementById('r-icon').textContent = arc.icon;
+  document.getElementById('r-name').textContent = arc.name;
+  document.getElementById('r-subtitle').textContent = arc.subtitle;
+
+  // Insights
+  const insightsHTML = arc.insights.map(i => `
+    <div class="insight">
+      <h4>${i.h}</h4>
+      <p>${i.t}</p>
+    </div>
+  `).join('');
+  document.getElementById('r-insights').innerHTML = insightsHTML;
+
+  // Archetypes mapping
+  const grid = document.getElementById('r-archetypes-grid');
+  grid.innerHTML = result.ordered.map(([k, score]) => {
+    const a = ARCHETYPES[k];
+    const isWin = (k === result.winner);
+    return `<div class="archetype-card" style="${isWin?'border-color:var(--cyan);background:rgba(0,212,255,.08)':''}">
+      <div class="ic">${a.icon}</div>
+      <div class="nm">${a.name.replace('El ','')}</div>
+      <div class="sc">${score} pts</div>
+    </div>`;
+  }).join('');
+}
+
+// =============================================================
+// ADMIN PANEL
+// =============================================================
+let adminData = [];
+
+function adminLogin(){
+  const pass = document.getElementById('adm-pass').value;
+  if(pass === ADMIN_PASS){
+    document.getElementById('admin-login').classList.add('hidden');
+    document.getElementById('admin-panel').classList.remove('hidden');
+    loadResponses();
+  } else {
+    document.getElementById('adm-login-err').classList.remove('hidden');
+  }
+}
+
+async function loadResponses(){
+  const status = document.getElementById('adm-status');
+  status.className = 'notice info';
+  status.innerHTML = '<span class="spinner"></span> Cargando respuestas desde GitHub...';
+  try {
+    const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/issues?state=open&labels=diagnostic&per_page=100`;
+    const r = await fetch(url, { headers: { 'Authorization': 'token ' + TOKEN } });
+    if(!r.ok) throw new Error(r.status);
+    const issues = await r.json();
+    adminData = issues.map(iss => {
+      try {
+        const match = iss.body.match(/```json\n([\s\S]*?)\n```/);
+        if(!match) return null;
+        const data = JSON.parse(match[1]);
+        data._issue = iss.number;
+        data._created = iss.created_at;
+        return data;
+      } catch(e){ return null; }
+    }).filter(Boolean);
+    renderAdmin();
+    status.className = 'notice ok';
+    status.textContent = `✓ ${adminData.length} respuesta${adminData.length===1?'':'s'} cargada${adminData.length===1?'':'s'}`;
+    setTimeout(() => status.classList.add('hidden'), 2500);
+  } catch(e){
+    status.className = 'notice err';
+    status.textContent = '❌ Error cargando: ' + e.message + ' — revisa el token o la conexión';
+  }
+}
+
+function renderAdmin(){
+  document.getElementById('kpi-total').textContent = adminData.length;
+  if(adminData.length === 0){
+    document.getElementById('kpi-archetype').textContent = '—';
+    document.getElementById('kpi-completion').textContent = '0%';
+    document.getElementById('kpi-last').textContent = '—';
+    document.querySelector('#adm-table tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:30px">Aún no hay respuestas</td></tr>';
+    return;
+  }
+  // Dominant archetype
+  const counts = {};
+  adminData.forEach(d => counts[d.winner] = (counts[d.winner]||0)+1);
+  const dom = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('kpi-archetype').textContent = ARCHETYPES[dom[0]] ? ARCHETYPES[dom[0]].icon + ' ' + ARCHETYPES[dom[0]].name.replace('El ','') : dom[0];
+  // Completion
+  const avg = adminData.reduce((s,d) => s + d.answers.filter(a=>a.value).length / QUESTIONS.length, 0) / adminData.length;
+  document.getElementById('kpi-completion').textContent = Math.round(avg*100) + '%';
+  // Last
+  const last = adminData.sort((a,b) => new Date(b.submitted_at) - new Date(a.submitted_at))[0];
+  document.getElementById('kpi-last').textContent = new Date(last.submitted_at).toLocaleString('es-CO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+
+  // Table
+  const rows = adminData.map((d, i) => {
+    const arc = ARCHETYPES[d.winner];
+    const date = new Date(d.submitted_at).toLocaleString('es-CO', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    return `<tr>
+      <td>${date}</td>
+      <td>${d.user.name}</td>
+      <td>${d.user.email}</td>
+      <td>${arc ? arc.icon + ' ' + arc.name.replace('El ','') : d.winner}</td>
+      <td><button class="btn btn-ghost" style="padding:6px 14px;font-size:.8rem" onclick="showDetail(${i})">Ver detalle →</button></td>
+    </tr>`;
+  }).join('');
+  document.querySelector('#adm-table tbody').innerHTML = rows;
+}
+
+window.showDetail = function(i){
+  const d = adminData[i];
+  const arc = ARCHETYPES[d.winner];
+  document.getElementById('adm-detail-card').style.display = 'block';
+  document.getElementById('adm-detail-name').textContent = `${d.user.name} — ${arc ? arc.name : d.winner}`;
+  let html = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px">`;
+  html += `<div class="kpi"><div class="v" style="font-size:1.3rem">${arc?arc.icon:'❓'}</div><div class="l">${arc?arc.name:'-'}</div></div>`;
+  Object.entries(d.scores).sort((a,b)=>b[1]-a[1]).slice(0,3).forEach(([k,v]) => {
+    const a = ARCHETYPES[k];
+    html += `<div class="kpi"><div class="v" style="font-size:1.3rem">${v} pts</div><div class="l">${a?a.name.replace('El ',''):k}</div></div>`;
+  });
+  html += `</div>`;
+  // Answers grouped by dimension
+  const byDim = {};
+  d.answers.forEach(a => {
+    if(!byDim[a.dim]) byDim[a.dim] = [];
+    byDim[a.dim].push(a);
+  });
+  Object.entries(byDim).forEach(([dim, ans]) => {
+    html += `<div class="card" style="margin-bottom:14px;padding:18px"><h3 style="color:var(--cyan);font-size:1rem;margin-bottom:10px">${dim}</h3>`;
+    ans.forEach(a => {
+      html += `<div style="margin-bottom:12px"><p style="font-size:.85rem;color:var(--muted);margin-bottom:4px">${a.q}</p><p style="font-size:.95rem">→ ${a.value || '<em style="color:var(--muted)">(sin responder)</em>'}</p></div>`;
+    });
+    html += `</div>`;
+  });
+  document.getElementById('adm-detail-body').innerHTML = html;
+  document.getElementById('adm-detail-card').scrollIntoView({behavior:'smooth'});
+};
+
+function exportExcel(){
+  if(!adminData.length){ alert('No hay datos para exportar.'); return; }
+  const wb = XLSX.utils.book_new();
+  // Hoja resumen
+  const summary = adminData.map(d => ({
+    Fecha: new Date(d.submitted_at).toLocaleString('es-CO'),
+    Nombre: d.user.name,
+    Email: d.user.email,
+    Arquetipo: ARCHETYPES[d.winner] ? ARCHETYPES[d.winner].name : d.winner,
+    ...d.scores
+  }));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summary), 'Resumen');
+  // Hoja detalle
+  const detail = [];
+  adminData.forEach(d => {
+    d.answers.forEach(a => {
+      detail.push({
+        Persona: d.user.name,
+        Fecha: new Date(d.submitted_at).toLocaleString('es-CO'),
+        Dimensión: a.dim,
+        Pregunta: a.q,
+        Respuesta: a.value || ''
+      });
+    });
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(detail), 'Detalle');
+  XLSX.writeFile(wb, `diagnostico-david-aponte-${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+// =============================================================
+// DASHBOARD
+// =============================================================
+async function loadDashboard(){
+  const status = document.getElementById('dash-status');
+  status.className = 'notice info';
+  status.innerHTML = '<span class="spinner"></span> Cargando datos...';
+  try {
+    const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/issues?state=open&labels=diagnostic&per_page=100`;
+    const r = await fetch(url, { headers: { 'Authorization': 'token ' + TOKEN } });
+    if(!r.ok) throw new Error(r.status);
+    const issues = await r.json();
+    adminData = issues.map(iss => {
+      try {
+        const match = iss.body.match(/```json\n([\s\S]*?)\n```/);
+        return match ? JSON.parse(match[1]) : null;
+      } catch(e){ return null; }
+    }).filter(Boolean);
+
+    if(adminData.length === 0){
+      status.className = 'notice info';
+      status.textContent = 'Aún no hay respuestas. Cuando David complete el diagnóstico, los datos aparecerán aquí.';
+      return;
+    }
+    status.classList.add('hidden');
+    renderDashboard();
+  } catch(e){
+    status.className = 'notice err';
+    status.textContent = '❌ Error: ' + e.message;
+  }
+}
+
+function renderDashboard(){
+  const d = adminData[adminData.length - 1]; // último
+
+  // Gráfica de arquetipos
+  const labels = Object.keys(ARCHETYPES).map(k => ARCHETYPES[k].icon + ' ' + ARCHETYPES[k].name.replace('El ',''));
+  const data = Object.keys(ARCHETYPES).map(k => d.scores[k] || 0);
+  if(window._chArc) window._chArc.destroy();
+  window._chArc = new Chart(document.getElementById('ch-archetypes'), {
+    type:'bar', data:{labels, datasets:[{label:'Puntaje', data, backgroundColor:'rgba(0,212,255,0.6)', borderColor:'#00d4ff', borderWidth:2}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:'#fff'},grid:{color:'rgba(255,255,255,.08)'}},y:{ticks:{color:'#fff'},grid:{color:'rgba(255,255,255,.05)'}}}}
+  });
+
+  // Tiempo vs ambición (gráfico burbuja simplificado)
+  if(window._chTA) window._chTA.destroy();
+  window._chTA = new Chart(document.getElementById('ch-time-amb'), {
+    type:'radar',
+    data:{labels:['Tiempo personal','Ambición monetaria','Profundidad cliente','Escala digital','Autoridad mediática'],
+      datasets:[{label:d.user.name, data:[
+        normalizeTimeScore(d), normalizeAmbitionScore(d), normalizeDepthScore(d), normalizeScaleScore(d), normalizeMediaScore(d)
+      ], backgroundColor:'rgba(123,47,255,0.15)',borderColor:'#7b2fff',borderWidth:2,pointBackgroundColor:'#7b2fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#fff'}}},
+      scales:{r:{angleLines:{color:'rgba(255,255,255,.1)'},grid:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#fff',font:{size:11}},ticks:{color:'rgba(255,255,255,.5)',backdropColor:'transparent'},min:0,max:5}}}
+  });
+
+  // Prioridades
+  const priorityAns = d.answers.find(a => a.q.includes('TOP 3 prioridades'));
+  if(priorityAns){
+    const items = (priorityAns.value || '').split(', ').filter(Boolean);
+    const counts = items.map(it => ({label: it, count: 1}));
+    if(window._chPri) window._chPri.destroy();
+    window._chPri = new Chart(document.getElementById('ch-priorities'), {
+      type:'bar', data:{labels: counts.map(c=>c.label), datasets:[{label:'Prioridad', data: counts.map((c,i)=>3-i), backgroundColor:['#00d4ff','#7b2fff','#ff8c00']}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{ticks:{color:'#fff'},grid:{color:'rgba(255,255,255,.08)'}},y:{ticks:{color:'#fff'},grid:{color:'rgba(255,255,255,.05)'}}}}
+    });
+  }
+
+  // Proposal body
+  const arc = ARCHETYPES[d.winner];
+  let prop = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px">
+    <div class="kpi"><div class="v" style="font-size:1.5rem">${arc.icon}</div><div class="l">Arquetipo</div><div style="margin-top:6px;font-weight:700">${arc.name}</div></div>
+    <div class="kpi"><div class="v" style="font-size:1.2rem">${getDimensionAnswer(d,'tiempo')}</div><div class="l">Tiempo disponible</div></div>
+    <div class="kpi"><div class="v" style="font-size:1.2rem">${getDimensionAnswer(d,'ingresos')}</div><div class="l">Meta de ingresos</div></div>
+  </div>`;
+  prop += `<h4 style="color:var(--cyan);margin-bottom:12px">💡 Recomendaciones del acompañamiento</h4>`;
+  arc.insights.forEach(i => {
+    prop += `<div class="insight"><h4>${i.h}</h4><p>${i.t}</p></div>`;
+  });
+  prop += `<h4 style="color:var(--cyan);margin:24px 0 12px">🎯 Áreas prioritarias identificadas</h4>`;
+  prop += `<p>${priorityAns ? priorityAns.value : '(no respondió)'}</p>`;
+
+  prop += `<h4 style="color:var(--cyan);margin:24px 0 12px">📝 Respuestas abiertas de David</h4>`;
+  d.answers.filter(a => a.type === 'text' && a.value).forEach(a => {
+    prop += `<div class="insight"><h4>${a.q}</h4><p>"${a.value}"</p></div>`;
+  });
+
+  document.getElementById('dash-proposal-body').innerHTML = prop;
+}
+
+function getDimensionAnswer(d, key){
+  const map = {
+    'tiempo':'A LA SEMANA',
+    'ingresos':'ingresos MENSUALES'
+  };
+  const ans = d.answers.find(a => a.q.includes(map[key]));
+  return ans ? (ans.value || '—').substring(0,40) : '—';
+}
+
+function normalizeTimeScore(d){
+  const ans = d.answers.find(a => a.q.includes('A LA SEMANA'));
+  if(!ans) return 0;
+  const v = ans.value || '';
+  if(v.includes('20')) return 5;
+  if(v.includes('10 a 20')) return 4;
+  if(v.includes('5 a 10')) return 3;
+  return 1;
+}
+function normalizeAmbitionScore(d){
+  const ans = d.answers.find(a => a.q.includes('ingresos MENSUALES'));
+  if(!ans) return 3;
+  const v = ans.value || '';
+  if(v.includes('80M+')) return 5;
+  if(v.includes('40M')) return 4;
+  if(v.includes('20M')) return 3;
+  return 2;
+}
+function normalizeDepthScore(d){
+  return ['mentor','estratega'].includes(d.winner) ? 5 : 2;
+}
+function normalizeScaleScore(d){
+  return ['maestro','emprendedor','comunidad'].includes(d.winner) ? 5 : 2;
+}
+function normalizeMediaScore(d){
+  return ['mediatico','autor'].includes(d.winner) ? 5 : 2;
+}
+
+// =============================================================
+// PARTICLES
+// =============================================================
+(function(){
+  try {
+    const cnv = document.getElementById('bg');
+    if(!cnv) return;
+    const ctx = cnv.getContext('2d');
+    let W,H,parts=[];
+    const onResize=()=>{W=cnv.width=innerWidth;H=cnv.height=innerHeight};
+    onResize();addEventListener('resize',onResize);
+    const cols=['#00d4ff','#7b2fff','#ff8c00'];
+    const N=innerWidth<700?12:18;
+    for(let i=0;i<N;i++)parts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,r:Math.random()*1.5+.5,c:cols[i%3],a:Math.random()*.4+.2});
+    function tick(){
+      ctx.clearRect(0,0,W,H);
+      parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c;ctx.globalAlpha=p.a;ctx.shadowBlur=8;ctx.shadowColor=p.c;ctx.fill()});
+      ctx.globalAlpha=1;ctx.shadowBlur=0;
+      requestAnimationFrame(tick);
+    }
+    tick();
+  } catch(e){}
+})();
+
+// =============================================================
+// INIT
+// =============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  const view = getView();
+  showView(view);
+
+  if(view === 'form'){
+    document.getElementById('btn-start').addEventListener('click', startForm);
+    document.getElementById('btn-next').addEventListener('click', nextQuestion);
+    document.getElementById('btn-prev').addEventListener('click', prevQuestion);
+  }
+
+  if(view === 'admin'){
+    document.getElementById('adm-login-btn').addEventListener('click', adminLogin);
+    document.getElementById('adm-pass').addEventListener('keypress', e => { if(e.key === 'Enter') adminLogin(); });
+    document.getElementById('adm-refresh').addEventListener('click', loadResponses);
+    document.getElementById('adm-export').addEventListener('click', exportExcel);
+    document.getElementById('adm-dashboard').addEventListener('click', () => { window.location.search = '?dashboard'; });
+    document.getElementById('adm-close-detail').addEventListener('click', () => { document.getElementById('adm-detail-card').style.display = 'none'; });
+  }
+
+  if(view === 'dashboard'){
+    loadDashboard();
+    document.getElementById('dash-refresh').addEventListener('click', loadDashboard);
+    document.querySelectorAll('.tab').forEach(t => {
+      t.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        document.getElementById('tab-perfil').classList.add('hidden');
+        document.getElementById('tab-prioridades').classList.add('hidden');
+        document.getElementById('tab-propuesta').classList.add('hidden');
+        document.getElementById('tab-' + t.dataset.tab).classList.remove('hidden');
+      });
+    });
+  }
+});
+</script>
+</body>
+</html>
